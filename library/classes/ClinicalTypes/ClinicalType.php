@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -38,12 +39,12 @@ abstract class ClinicalType
     }
         
     /*
-     * Check if this clinical type applies to this patient.   
-     * 
+     * Check if this clinical type applies to this patient.
+     *
      * @param (RsPatient) $patient
      * @param (date) $beginMeasurement
      * @param (date) $endMeasurement
-     * 
+     *
      * @return true if type applies, false ow
      */
     abstract public function doPatientCheck(RsPatient $patient, $beginDate = null, $endDate = null, $options = null);

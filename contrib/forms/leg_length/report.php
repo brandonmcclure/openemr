@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2009 Aron Racho <aron@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -11,7 +12,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
 {
     $count = 0;
     $data = formFetch("form_leg_length", $id);
-    $width = 100/$cols;
+    $width = 100 / $cols;
     if ($data) {
         ?>
 
@@ -121,7 +122,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
     </tbody>
   </table>
 
-    <?php if ($data['notes'] != '') {?>
+        <?php if ($data['notes'] != '') {?>
     </p>
     <table border='0' cellpadding='0' cellspacing='0' class='text'>
         <tr class='text'>
@@ -133,7 +134,7 @@ function leg_length_report($pid, $encounter, $cols, $id)
     </table>
     <?php } ?>
 
-    <?php
+        <?php
     }
 }
 ?>

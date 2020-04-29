@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This will print a blank form, and if "patientid" is specified then
  * any existing data for the specified patient is included.
@@ -12,22 +13,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 
 // Option to substitute a custom version of this script.
-if (!empty($GLOBALS['gbl_rapid_workflow']) &&
+if (
+    !empty($GLOBALS['gbl_rapid_workflow']) &&
     $GLOBALS['gbl_rapid_workflow'] == 'LBFmsivd' &&
-    file_exists('../../../custom/demographics_print.php')) {
+    file_exists('../../../custom/demographics_print.php')
+) {
     include('../../../custom/demographics_print.php');
     exit();
 }
 
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Acl\AclMain;
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : 0 + $_REQUEST['patientid'];
 if ($patientid < 0) {
@@ -78,11 +80,11 @@ if ($patientid) {
     $prow = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
     $erow = getEmployerData($pid);
   // Check authorization.
-    $thisauth = acl_check('patients', 'demo');
+    $thisauth = AclMain::aclCheckCore('patients', 'demo');
     if (!$thisauth) {
         die(xlt('Demographics not authorized'));
     }
-    if ($prow['squad'] && ! acl_check('squads', $prow['squad'])) {
+    if ($prow['squad'] && ! AclMain::aclCheckCore('squads', $prow['squad'])) {
         die(xlt('You are not authorized to access this squad'));
     }
   // $irow = getInsuranceProviders(); // needed?
@@ -136,7 +138,7 @@ div.section {
   // is likely to happen (i.e. where all form options are listed).
   // TODO - now use mPDF, so should test if still need this fix
 if (!$isform) {
-?>
+    ?>
 border-style: solid;
 border-width: 1px;
 border-color: #000000;
@@ -226,8 +228,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -260,8 +261,10 @@ function getContent()
         if ($i === false) {
             break;
         }
-        if (substr($content, $i+6, $wrlen) === $web_root &&
-        substr($content, $i+6, $wsrlen) !== $webserver_root) {
+        if (
+            substr($content, $i + 6, $wrlen) === $web_root &&
+            substr($content, $i + 6, $wsrlen) !== $webserver_root
+        ) {
             $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
         }
     }
@@ -400,7 +403,7 @@ if ($PDF_OUTPUT) {
     $pdf->writeHTML($content);
     $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
 } else {
-?>
+    ?>
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
 <script language='JavaScript'>
 opener.top.printLogPrint(window);

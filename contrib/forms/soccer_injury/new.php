@@ -1,4 +1,5 @@
 <?php
+
 //////////////////////////////////////////////////////////////////////
 // ------------------ DO NOT MODIFY VIEW.PHP !!! ---------------------
 // View.php is an exact duplicate of new.php.  If you wish to make
@@ -21,6 +22,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
+
+use OpenEMR\Core\Header;
 
 $row = array();
 
@@ -92,7 +95,7 @@ if ($_POST['bn_save']) {
     $simech_other = '';
     if ($_POST['activity'] == '7') {
         $simech_other = $_POST['activity_other'];
-    } else if ($_POST['activity'] == '23') {
+    } elseif ($_POST['activity'] == '23') {
         $simech_other = $_POST['activity_nc_other'];
     }
 
@@ -137,9 +140,7 @@ if ($_POST['bn_save']) {
         cbvalue('equip_2'), cbvalue('equip_3'), cbvalue('equip_4'), cbvalue('equip_5'), cbvalue('equip_6'), rbvalue('side'), rbvalue('removed'), cbvalue('treat_1'), cbvalue('treat_2'),
         cbvalue('treat_3'), cbvalue('treat_4'), cbvalue('treat_5'), cbvalue('treat_6'), cbvalue('treat_7'), cbvalue('treat_8'), cbvalue('treat_9'), cbvalue('treat_10'), $sistreat_other, cbvalue('noreturn'),
         $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_soccer_injury ( " .
          "siinjtime, sigametime, simechanism, simech_other, sisurface, " .
          "siposition, sifootwear, " .
@@ -181,7 +182,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 <style>
 .billcell { font-family: sans-serif; font-size: 10pt }
 </style>
@@ -210,10 +211,10 @@ if ($formid) {
    <input type='text' name='time' size='5' title='Hour or hh:mm' value='<?php echo attr($siinjtime); ?>' />&nbsp;
    <input type='radio' name='timeampm' value='am'<?php if ($siampm == 'am') {
         echo ' checked';
-} ?> />am&nbsp;
+                                                 } ?> />am&nbsp;
    <input type='radio' name='timeampm' value='pm'<?php if ($siampm == 'pm') {
         echo ' checked';
-} ?> />pm&nbsp;
+                                                 } ?> />pm&nbsp;
   </td>
  </tr>
 
@@ -416,7 +417,7 @@ if ($formid) {
  </tr>
 
  <tr>
-  <td nowrap>Removed from<br>Play/Training<br>after Injury</td>
+  <td nowrap>Removed from<br />Play/Training<br />after Injury</td>
   <td nowrap>
    <table width='100%'>
     <tr>
@@ -430,7 +431,7 @@ if ($formid) {
  </tr>
 
  <tr>
-  <td nowrap>Medical Treatment<br>Sought from</td>
+  <td nowrap>Medical Treatment<br />Sought from</td>
   <td nowrap>
    <table width='100%'>
     <tr>

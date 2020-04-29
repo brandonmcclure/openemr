@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -96,8 +97,8 @@ class Dispatcher
                 include_once $controller_file;
             }
             
-            $controller = new $controller_class ( $phreezer, $renderEngine, $context, $router );
-            $controller->$method_param ();
+            $controller = new $controller_class($phreezer, $renderEngine, $context, $router);
+            $controller->$method_param();
             
             return true;
         }
@@ -151,13 +152,15 @@ class Dispatcher
         }
         
         // create an instance of the controller class
-        $controller = new $controller_class ( $phreezer, $renderEngine, $context, $router );
+        $controller = new $controller_class($phreezer, $renderEngine, $context, $router);
         
         // we have a valid instance, just verify there is a matching method
-        if (! is_callable(array (
+        if (
+            ! is_callable(array (
                 $controller,
                 $method_param
-        ))) {
+            ))
+        ) {
             throw new Exception("'" . $controller_class . "." . $method_param . "' is not a valid action");
         }
         

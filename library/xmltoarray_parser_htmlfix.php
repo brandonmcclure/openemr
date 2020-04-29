@@ -1,4 +1,5 @@
 <?php
+
 // +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 ZMG LLC <sam@zhservices.com>
 //
@@ -31,7 +32,7 @@
  * $xmltoarray->xmlparser_setoption(XML_OPTION_CASE_FOLDING, 0);
  * $xmltoarray->xmlparser_fix_into_struct($xmlstring); //fixes html values for XML
  * $array = $xmltoarray->createArray(); //creates an array with fixed html values
- * foreach($array as $key => $value){ 
+ * foreach($array as $key => $value){
  *	$array[$key] = $xmltoarray->fix_html_entities($value); //returns proper html values
  * }
  */
@@ -78,7 +79,7 @@ class xmltoarray_parser_htmlfix
         }
 
         foreach ($keys as $key => $value) {
-            $xml =  preg_replace("/".$key."/", $value, $xml);
+            $xml =  preg_replace("/" . $key . "/", $value, $xml);
         }
 
         $xml =  str_replace("&", "%and%", $xml);
@@ -94,7 +95,7 @@ class xmltoarray_parser_htmlfix
     function createArray()
     {
         $i = 0;
-        $name = isset($this->values[$i]['tag']) ? $this->values[$i]['tag']: '';
+        $name = isset($this->values[$i]['tag']) ? $this->values[$i]['tag'] : '';
         $this->thearray[$name] = isset($this->values[$i]['attributes']) ? $this->values[$i]['attributes'] : '';
         $this->thearray[$name] = $this->_struct_to_array($this->values, $i);
         return $this->thearray;
@@ -123,7 +124,7 @@ class xmltoarray_parser_htmlfix
                     case 'complete':
                         $name = $values[$i]['tag'];
                         if (!empty($name)) {
-                            $child[$name]= (isset($values[$i]['value']))?($values[$i]['value']):'';
+                            $child[$name] = (isset($values[$i]['value'])) ? ($values[$i]['value']) : '';
                             if (isset($values[$i]['attributes'])) {
                                 $child[$name] = $values[$i]['attributes'];
                             }

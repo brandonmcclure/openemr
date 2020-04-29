@@ -1,9 +1,10 @@
 <?php
+
 ////////////////////////////////////////////////////////////////////
-// Form:	Psychiatrisch Onderzoek
-// Package:	Report of First visit - Dutch specific form
-// Created by:	Larry Lart
-// Version:	1.0 - 29-03-2008
+// Form:    Psychiatrisch Onderzoek
+// Package: Report of First visit - Dutch specific form
+// Created by:  Larry Lart
+// Version: 1.0 - 29-03-2008
 ////////////////////////////////////////////////////////////////////
 
 require_once("../../globals.php");

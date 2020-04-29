@@ -11,9 +11,11 @@
 
 
 
-require_once(dirname(__FILE__)."/encounter_events.inc.php");
-require_once(dirname(__FILE__)."/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
+require_once(dirname(__FILE__) . "/encounter_events.inc.php");
+require_once(dirname(__FILE__) . "/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
 
+use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
+use OpenEMR\Events\BoundFilter;
 
 $COMPARE_FUNCTION_HASH = array(
     'doctor' => 'compareAppointmentsByDoctorName',
@@ -131,6 +133,13 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
         if ($where_param) {
             $where .= $where_param;
         }
+
+        // Filter out appointments based on a custom module filter
+        $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
+        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(AppointmentsFilterEvent::EVENT_HANDLE, $apptFilterEvent, 10);
+        $boundFilter = $apptFilterEvent->getBoundFilter();
+        $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
+        $where .= " AND " . $boundFilter->getFilterClause();
 
         $order_by = "e.pc_eventDate, e.pc_startTime";
         if ($orderby_param) {
@@ -283,7 +292,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                 // appointments set prior to fix $nd remains unchanged). This can be done since
                 // $nd has no influence past the mktime functions.
                 while ($occuranceYm < $from_dateYm) {
-                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
                     list($ny,$nm,$nd) = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
                 }
@@ -323,7 +332,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
                         }
                     }
 
-                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm+$rfreq, $nd, $ny));
+                    $occuranceYmX = date('Y-m-d', mktime(0, 0, 0, $nm + $rfreq, $nd, $ny));
                     list($ny,$nm,$nd) = explode('-', $occuranceYmX);
                     $occuranceYm = "$ny-$nm";
                 }
@@ -442,8 +451,8 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
 {
     $appointments = fetchAllEvents($from_date, $to_date, $provider_id, $facility_id);
     $appointments = sortAppointments($appointments, "date");
-    $from_datetime = strtotime($from_date." 00:00:00");
-    $to_datetime = strtotime($to_date." 23:59:59");
+    $from_datetime = strtotime($from_date . " 00:00:00");
+    $to_datetime = strtotime($to_date . " 23:59:59");
     $availableSlots = array();
     $start_time = 0;
     $date = 0;
@@ -452,7 +461,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
             $start_time = $appointments[$i]['pc_startTime'];
             $date = $appointments[$i]['pc_eventDate'];
             $provider_id = $appointments[$i]['uprovider_id'];
-        } else if ($appointments[$i]['pc_catid'] == 3) { // 3 == Out Of Office
+        } elseif ($appointments[$i]['pc_catid'] == 3) { // 3 == Out Of Office
             continue;
         } else {
             $start_time = $appointments[$i]['pc_endTime'];
@@ -463,7 +472,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
         // find next appointment with the same provider
         $next_appointment_date = 0;
         $next_appointment_time = 0;
-        for ($j = $i+1; $j < count($appointments); ++$j) {
+        for ($j = $i + 1; $j < count($appointments); ++$j) {
             if ($appointments[$j]['uprovider_id'] == $provider_id) {
                 $next_appointment_date = $appointments[$j]['pc_eventDate'];
                 $next_appointment_time = $appointments[$j]['pc_startTime'];
@@ -476,8 +485,8 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
         if ($next_appointment_time && $same_day) {
             // check the start time of the next appointment
 
-            $start_datetime = strtotime($date." ".$start_time);
-            $next_appointment_datetime = strtotime($next_appointment_date." ".$next_appointment_time);
+            $start_datetime = strtotime($date . " " . $start_time);
+            $next_appointment_datetime = strtotime($next_appointment_date . " " . $next_appointment_time);
             $curr_time = $start_datetime;
             while ($curr_time < $next_appointment_datetime - (getSlotSize() / 2)) {
                 //create a new appointment ever 15 minutes
@@ -489,7 +498,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
                     $appointments[$i]['ulname'],
                     $appointments[$i]['umname']
                 );
-                $availableSlots []= $available_slot;
+                $availableSlots [] = $available_slot;
                 $curr_time += getSlotSize(); // add a 15-minute slot
             }
         }
@@ -554,7 +563,7 @@ function compareBasic($e1, $e2)
 {
     if ($e1 < $e2) {
         return -1;
-    } else if ($e1 > $e2) {
+    } elseif ($e1 > $e2) {
         return 1;
     }
 
@@ -649,7 +658,7 @@ function compareAppointmentsByCompletedDrugScreen($appointment1, $appointment2)
 
 function fetchAppointmentCategories()
 {
-     $catSQL= " SELECT pc_catid as id, pc_catname as category "
+     $catSQL = " SELECT pc_catid as id, pc_catname as category "
             . " FROM openemr_postcalendar_categories WHERE pc_active=1 and pc_recurrtype=0 and pc_cattype=0";
     if ($GLOBALS['enable_group_therapy']) {
         $catSQL .= " OR pc_cattype=3";

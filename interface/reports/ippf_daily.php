@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This module creates the Barbados Daily Record.
  *
@@ -11,12 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../globals.php");
 require_once("../../library/patient.inc");
-require_once("../../library/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!empty($_POST)) {
@@ -27,7 +28,7 @@ if (!empty($_POST)) {
 
 // Might want something different here.
 //
-if (! acl_check('acct', 'rep')) {
+if (! AclMain::aclCheckCore('acct', 'rep')) {
     die("Unauthorized access.");
 }
 
@@ -131,26 +132,21 @@ if ($form_output == 3) {
     header("Content-Disposition: attachment; filename=service_statistics_report.csv");
     header("Content-Description: File Transfer");
 } else { // not export
-?>
+    ?>
 <html>
 <head>
 <title><?php echo text($report_title); ?></title>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+    <?php Header::setupHeader('datetime-picker'); ?>
 
 <style type="text/css">
  body       { font-family:sans-serif; font-size:10pt; font-weight:normal }
- .dehead    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:bold }
- .detail    { color:#000000; font-family:sans-serif; font-size:10pt; font-weight:normal }
+ .dehead    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:bold }
+ .detail    { color:var(--black); font-family:sans-serif; font-size:10pt; font-weight:normal }
 </style>
 
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="../../library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
-
 <script language="JavaScript">
-    $(function() {
+    $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
@@ -177,43 +173,43 @@ if ($form_output == 3) {
     <?php echo xlt('Facility'); ?>:
   </td>
   <td valign='top' class='detail'>
-<?php
+    <?php
  // Build a drop-down list of facilities.
  //
- $fres = $facilityService->getAll();
- echo "   <select name='form_facility'>\n";
- echo "    <option value=''>-- All Facilities --\n";
-foreach ($fres as $frow) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $_POST['form_facility']) {
-        echo " selected";
+    $fres = $facilityService->getAll();
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    foreach ($fres as $frow) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $_POST['form_facility']) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
- echo "   </select>\n";
-?>
+    echo "   </select>\n";
+    ?>
   </td>
   <td colspan='2' class='detail' nowrap>
     <?php echo xlt('Date'); ?>
    <input type='text' class='datepicker' name='form_from_date' id='form_from_date' size='10' value='<?php echo attr(oeFormatShortDate($from_date)); ?>' />
   </td>
   <td valign='top' class='dehead' nowrap>
-    <?php echo xlt('To'); ?>:
+    <?php echo xlt('To{{Destination}}'); ?>:
   </td>
   <td colspan='3' valign='top' class='detail' nowrap>
-<?php
-foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
-    echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
-    if ($key == $form_output) {
-        echo ' checked';
-    }
+    <?php
+    foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $value) {
+        echo "   <input type='radio' name='form_output' value='" . attr($key) . "'";
+        if ($key == $form_output) {
+            echo ' checked';
+        }
 
-    echo " />" . text($value) . " &nbsp;";
-}
-?>
+        echo " />" . text($value) . " &nbsp;";
+    }
+    ?>
   </td>
   <td align='right' valign='top' class='detail' nowrap>
    <input type='submit' name='form_submit' value='<?php echo xla('Submit'); ?>'
@@ -225,7 +221,7 @@ foreach (array(1 => 'Screen', 2 => 'Printer', 3 => 'Export File') as $key => $va
   </td>
  </tr>
 </table>
-<?php
+    <?php
 } // end not export
 
 if ($_POST['form_submit']) {
@@ -252,7 +248,7 @@ if ($_POST['form_submit']) {
     "AND b.code_type = 'MA' " .
     "WHERE fe.date >= ? AND " .
     "fe.date <= ? ";
-    array_push($sqlBindArray, $from_date.' 00:00:00', $from_date.' 23:59:59');
+    array_push($sqlBindArray, $from_date . ' 00:00:00', $from_date . ' 23:59:59');
 
     if ($form_facility) {
         $query .= "AND fe.facility_id = ? ";
@@ -390,7 +386,7 @@ if ($_POST['form_submit']) {
 
     foreach ($areport as $key => $varr) {
         $bgcolor = (++$encount & 1) ? "#ddddff" : "#ffdddd";
-        genStartRow("bgcolor='". attr($bgcolor) . "'");
+        genStartRow("bgcolor='" . attr($bgcolor) . "'");
         genAnyCell($varr[0], false, 'detail');
         // Generate data and accumulate totals for this row.
         for ($cnum = 0; $cnum < $report_col_count; ++$cnum) {
@@ -415,12 +411,12 @@ if ($_POST['form_submit']) {
 } // end if submit
 
 if ($form_output != 3) {
-?>
+    ?>
 </form>
 </center>
 
 <script language='JavaScript'>
-<?php if ($form_output == 2) { ?>
+    <?php if ($form_output == 2) { ?>
  var win = top.printLogPrint ? top : opener.top;
  win.printLogPrint(window);
 <?php } ?>
@@ -428,6 +424,6 @@ if ($form_output != 3) {
 
 </body>
 </html>
-<?php
+    <?php
 } // end not export
 ?>

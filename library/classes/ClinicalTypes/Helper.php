@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -48,7 +49,7 @@ class Helper
     
     public static function check($type, $subType, RsPatient $patient, $beginDate = null, $endDate = null, $options = null)
     {
-        $typeObj = new $type( $subType );
+        $typeObj = new $type($subType);
         if ($typeObj instanceof ClinicalType) {
             if ($beginDate == null) {
                 $beginDate = $patient->dob;

@@ -1,4 +1,5 @@
 <?php
+
 //////////////////////////////////////////////////////////////////////
 // ------------------ DO NOT MODIFY VIEW.PHP !!! ---------------------
 // View.php is an exact duplicate of new.php.  If you wish to make
@@ -21,6 +22,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
+
+use OpenEMR\Core\Header;
 
 $row = array();
 
@@ -68,9 +71,7 @@ if ($_POST['bn_save']) {
          followup_location = ?,
          WHERE id = ?";
         sqlStatement($query, array($_POST['form_notes'] , cbvalue('fu_required'), $fu_timing, $fu_location, $formid ));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_specialist_notes ( " .
          "notes, followup_required, followup_timing, followup_location " .
          ") VALUES ( ?, ?, ?, ? )";
@@ -91,8 +92,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
+    <?php Header::setupHeader(); ?>
 <script language='JavaScript'>
  function newEvt() {
   dlgopen('../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>,

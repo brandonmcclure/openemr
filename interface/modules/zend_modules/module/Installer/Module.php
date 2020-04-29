@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Installer/Module.php
  *
@@ -14,12 +15,10 @@ namespace Installer;
 
 // Add these import statements:
 use Installer\Model\InstModule;
-use Zend\Session\Config\SessionConfig;
-use Zend\Session\SessionManager;
-use Zend\Session\Container;
 use Installer\Model\InstModuleTable;
-use Zend\Db\ResultSet\ResultSet;
-use Zend\Db\TableGateway\TableGateway;
+use Laminas\Db\ResultSet\ResultSet;
+use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Console\Adapter\AdapterInterface as Console;
 
 /**
  * Handles the initial module load.  Any configuration should in the module.config.php file
@@ -32,7 +31,7 @@ class Module
         return array(
             // TODO: The zf3 autoloader should handle autoloading these classes by default but it's not right now
             // we need to figure out why that is so we can remove this unnecessary piece.
-            'Zend\Loader\StandardAutoloader' => array(
+            'Laminas\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
                 ),
@@ -45,14 +44,13 @@ class Module
         return include __DIR__ . '/config/module.config.php';
     }
 
-
-    public function onBootstrap(\Zend\EventManager\EventInterface $e)
+    public function getConsoleUsage(Console $console)
     {
-        $config = $e->getApplication()->getServiceManager()->get('Configuration');
-        $sessionConfig = new SessionConfig();
-        $sessionConfig->setOptions($config['session']);
-        $sessionManager = new SessionManager($sessionConfig, null, null);
-        Container::setDefaultManager($sessionManager);
-        $sessionManager->start();
+        return [
+            ['zfc-module', 'Part of route for console call'],
+            ['--site=<site_name>', 'Name of site, by default: "default" '],
+            ['--modaction=<action_name>', 'Available actions: install_sql, install_acl, upgrade_acl, upgrade_sql'],
+            ['--modname=<module_name>', 'Name of module'],
+        ];
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /** @package    verysimple::Phreeze */
 
 /**
@@ -398,18 +399,18 @@ abstract class Phreezable implements Serializable
                 if ($fm->FieldType == FM_TYPE_DECIMAL && is_numeric($fm->FieldSize)) {
                     // decimal validation needs to be treated differently than whole numbers
                     
-                    $values = explode('.', ( string ) $this->$prop, 2);
-                    $right = count($values) > 1 ? strlen(( string ) $values [1]) : 0;
-                    $left = strlen(( string ) $values [0]);
+                    $values = explode('.', (string) $this->$prop, 2);
+                    $right = count($values) > 1 ? strlen((string) $values [1]) : 0;
+                    $left = strlen((string) $values [0]);
                     
-                    $limits = explode('.', ( string ) $fm->FieldSize, 2);
-                    $limitRight = count($limits) > 1 ? ( int ) $limits [1] : 0;
-                    $limitLeft = ( int ) $limits [0] - $limitRight;
+                    $limits = explode('.', (string) $fm->FieldSize, 2);
+                    $limitRight = count($limits) > 1 ? (int) $limits [1] : 0;
+                    $limitLeft = (int) $limits [0] - $limitRight;
                     
                     if ($left > $limitLeft || $right > $limitRight) {
                         $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                     }
-                } elseif (is_numeric($fm->FieldSize) && ($lenfunction ( $this->$prop )-1 > $fm->FieldSize)) {
+                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop) - 1 > $fm->FieldSize)) {
                     $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                 }
                 
@@ -516,15 +517,15 @@ abstract class Phreezable implements Serializable
         }
         
         /*
-		 * print "<pre>";
-		 * $this->Data = "";
-		 * $this->_phreezer = null;
-		 * $this->_cache = null;
-		 * print_r($this);
-		 *
-		 * print_r($fms);
-		 * die();
-		 */
+         * print "<pre>";
+         * $this->Data = "";
+         * $this->_phreezer = null;
+         * $this->_cache = null;
+         * print_r($this);
+         *
+         * print_r($fms);
+         * die();
+         */
         
         throw new Exception("No Primary Key found for " . get_class($this));
     }
@@ -642,7 +643,7 @@ abstract class Phreezable implements Serializable
                 // won't ever grab the same object twice in one page load
                 $this->_phreezer->IncludeModel($km->ForeignObject);
                 $foclass = $km->ForeignObject;
-                $fo = new $foclass ( $this->_phreezer, $row );
+                $fo = new $foclass($this->_phreezer, $row);
                 
                 $this->_phreezer->SetCache($foclass, $fo->GetPrimaryKeyValue(), $fo, $this->_phreezer->CacheQueryObjectLevel2);
             }

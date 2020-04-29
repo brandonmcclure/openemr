@@ -1,21 +1,27 @@
 <?php
+
 /**
  *  Patient Portal
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {
-    session_destroy();
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
@@ -31,7 +37,7 @@ use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
 
 if ($_SESSION['portal_init'] !== true) {
-    $_SESSION['whereto'] = 'paymentpanel';
+    $_SESSION['whereto'] = 'paymentcard';
 }
 
 $_SESSION['portal_init'] = false;
@@ -64,7 +70,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         return $ex->getMessage();
     }
 
-    $_SESSION['whereto'] = 'paymentpanel';
+    $_SESSION['whereto'] = 'paymentcard';
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -101,7 +107,7 @@ if ($_POST['mode'] == 'Stripe') {
         echo $ex->getMessage();
     }
 
-    $_SESSION['whereto'] = 'paymentpanel';
+    $_SESSION['whereto'] = 'paymentcard';
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -125,7 +131,7 @@ if ($_POST['mode'] == 'portal-save') {
     }
 
     echo true;
-} else if ($_POST['mode'] == 'review-save') {
+} elseif ($_POST['mode'] == 'review-save') {
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
     $form_source = trim($_POST['form_source']);

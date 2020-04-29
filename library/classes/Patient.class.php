@@ -1,6 +1,7 @@
 <?php
+
 /************************************************************************
-  			aptient.php - Copyright duhlman
+            aptient.php - Copyright duhlman
 
 /usr/share/apps/umbrello/headings/heading.php
 
@@ -12,6 +13,8 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  * class Patient
  *
  */
+
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Patient extends ORDataObject
 {
@@ -42,7 +45,7 @@ class Patient extends ORDataObject
     {
         if (!empty($this->id)) {
             $res = sqlQuery("SELECT providerID , fname , lname , mname, " .
-                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, ".
+                "DATE_FORMAT(DOB,'%m/%d/%Y') as date_of_birth, " .
                 "pubpid " .
                 "FROM " . escape_table_name($this->_table) . " " .
                 "WHERE pid = ?", [$this->id]);

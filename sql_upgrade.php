@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2008-2010 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -42,7 +43,7 @@ $desiredVersion->setMinor($v_minor);
 $desiredVersion->setMajor($v_major);
 
 // Force logging off
-$GLOBALS["enable_auditlog"]=0;
+$GLOBALS["enable_auditlog"] = 0;
 
 $versions = array();
 $sqldir = "$webserver_root/sql";
@@ -74,7 +75,7 @@ ksort($versions);
 <body>
 <center>
 <span class='title'>OpenEMR Database Upgrade</span>
-<br>
+<br />
 </center>
 <?php
 if (!empty($_POST['form_submit'])) {
@@ -101,6 +102,7 @@ if (!empty($_POST['form_submit'])) {
     flush();
 
     echo "<font color='green'>Updating global configuration defaults...</font><br />\n";
+    $skipGlobalEvent = true; //use in globals.inc.php script to skip event stuff
     require_once("library/globals.inc.php");
     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
         foreach ($grparr as $fldid => $fldarr) {
@@ -147,8 +149,8 @@ if (!empty($_POST['form_submit'])) {
 <?php
 foreach ($versions as $version => $filename) {
     echo " <option value='$version'";
-  // Defaulting to most recent version, which is now 5.0.1.
-    if ($version === '5.0.1') {
+    // Defaulting to most recent version, which is now 5.0.2.
+    if ($version === '5.0.2') {
         echo " selected";
     }
 

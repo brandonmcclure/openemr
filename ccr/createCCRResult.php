@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CCR Script.
  *
@@ -19,7 +20,6 @@
  * @author  Garden State Health Systems <http://www.gshsys.com/>
  * @link    http://www.open-emr.org
  */
-
 
 $result = getResultData();
 $row = sqlFetchArray($result);
@@ -200,14 +200,14 @@ do {
     //
     //
     //if($row['abnormal'] == '' ) {
-    //	$e_NormalResult = $ccr->createElement('NormalResult');
-    //	$e_Test->appendChild($e_NormalResult);
+    //  $e_NormalResult = $ccr->createElement('NormalResult');
+    //  $e_Test->appendChild($e_NormalResult);
     //} else {
-    //	$e_Flag = $ccr->createElement('Flag');
-    //	$e_Test->appendChild($e_Flag);
+    //  $e_Flag = $ccr->createElement('Flag');
+    //  $e_Test->appendChild($e_Flag);
     //
-    //	$e_Text = $ccr->createElement('Text');
-    //	$e_Flag->appendChild($e_Text);
+    //  $e_Text = $ccr->createElement('Text');
+    //  $e_Flag->appendChild($e_Text);
     //
     //}
 } while ($row = sqlFetchArray($result));

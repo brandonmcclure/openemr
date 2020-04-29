@@ -22,6 +22,7 @@
  * @author Jerry Padgett <sjpadgett@gmail.com>
  * @link    http://www.open-emr.org
  */
+
 require_once("verify_session.php");
 
 $query = "SELECT a.*,lo.title AS AmendmentBy,lo1.title AS AmendmentStatus FROM amendments a
@@ -30,7 +31,6 @@ $query = "SELECT a.*,lo.title AS AmendmentBy,lo1.title AS AmendmentStatus FROM a
 	WHERE a.pid = ? ORDER BY amendment_date DESC";
 $res = sqlStatement($query, array($pid));
 if (sqlNumRows($res) > 0) { ?>
-
     <table class="table table-striped">
         <tr class="header">
             <th><?php echo xlt('Date'); ?></th>
@@ -41,11 +41,11 @@ if (sqlNumRows($res) > 0) { ?>
     <?php
         $even = false;
     while ($row = sqlFetchArray($res)) {
-        echo "<tr class='".$class."'>";
-        echo "<td>".text($row['amendment_date'])."</td>";
-        echo "<td>".text($row['AmendmentBy'])."</td>";
-        echo "<td>".text($row['amendment_desc'])."</td>";
-        echo "<td>".text($row['AmendmentStatus'])."</td>";
+        echo "<tr class='" . $class . "'>";
+        echo "<td>" . text($row['amendment_date']) . "</td>";
+        echo "<td>" . text($row['AmendmentBy']) . "</td>";
+        echo "<td>" . text($row['amendment_desc']) . "</td>";
+        echo "<td>" . text($row['AmendmentStatus']) . "</td>";
         echo "</tr>";
     }
 

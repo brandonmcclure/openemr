@@ -57,7 +57,7 @@ CREATE TABLE `amendments` (
   `amendment_desc` text COMMENT 'Amendment Details',
   `created_by` int(11) NOT NULL COMMENT 'references users.id for session owner',
   `modified_by` int(11) NULL COMMENT 'references users.id for session owner',
-  `created_time` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' COMMENT 'created time',
+  `created_time` timestamp NULL COMMENT 'created time',
   `modified_time` timestamp NULL COMMENT 'modified time',
   PRIMARY KEY amendments_id(`amendment_id`),
   KEY amendment_pid(`pid`)
@@ -1028,7 +1028,7 @@ DROP TABLE IF EXISTS `codes`;
 CREATE TABLE `codes` (
   `id` int(11) NOT NULL auto_increment,
   `code_text` varchar(255) NOT NULL default '',
-  `code_text_short` varchar(24) NOT NULL default '',
+  `code_text_short` varchar(255) NOT NULL default '',
   `code` varchar(25) NOT NULL default '',
   `code_type` smallint(6) default NULL,
   `modifier` varchar(12) NOT NULL default '',
@@ -1586,8 +1586,8 @@ CREATE TABLE `facility` (
   `website` varchar(255) default NULL,
   `email` varchar(255) default NULL,
   `service_location` tinyint(1) NOT NULL default '1',
-  `billing_location` tinyint(1) NOT NULL default '0',
-  `accepts_assignment` tinyint(1) NOT NULL default '0',
+  `billing_location` tinyint(1) NOT NULL default '1',
+  `accepts_assignment` tinyint(1) NOT NULL default '1',
   `pos_code` tinyint(4) default NULL,
   `x12_sender_id` varchar(25) default NULL,
   `attn` varchar(65) default NULL,
@@ -1596,7 +1596,7 @@ CREATE TABLE `facility` (
   `facility_taxonomy` varchar(15) default NULL,
   `tax_id_type` VARCHAR(31) NOT NULL DEFAULT '',
   `color` VARCHAR(7) NOT NULL DEFAULT '',
-  `primary_business_entity` INT(10) NOT NULL DEFAULT '0' COMMENT '0-Not Set as business entity 1-Set as business entity',
+  `primary_business_entity` INT(10) NOT NULL DEFAULT '1' COMMENT '0-Not Set as business entity 1-Set as business entity',
   `facility_code` VARCHAR(31) default NULL,
   `extra_validation` tinyint(1) NOT NULL DEFAULT '1',
   `mail_street` varchar(30) default NULL,
@@ -1605,6 +1605,8 @@ CREATE TABLE `facility` (
   `mail_state` varchar(3) default NULL,
   `mail_zip` varchar(10) default NULL,
   `oid` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'HIEs CCDA and FHIR an OID is required/wanted',
+  `iban` varchar(50) default NULL,
+  `info` TEXT,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 ;
 
@@ -1612,7 +1614,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '');
+INSERT INTO `facility` VALUES (3, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 0, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '');
 
 -----------------------------------------------------------
 
@@ -1709,6 +1711,7 @@ CREATE TABLE `form_encounter` (
   `billing_facility` INT(11) NOT NULL DEFAULT 0,
   `external_id` VARCHAR(20) DEFAULT NULL,
   `pos_code` tinyint(4) default NULL,
+  `parent_encounter_id` BIGINT(20) NULL DEFAULT NULL,
   PRIMARY KEY  (`id`),
   KEY `pid_encounter` (`pid`, `encounter`),
   KEY `encounter_date` (`date`)
@@ -2802,7 +2805,8 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 3, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 4, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 5, 2, 1, 10, 15, '', 1, 1, '', 'ND', 'External identifier', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'DOB', '1', 'DOB', 6, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 6, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
+
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 7, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 8, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 9, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
@@ -4703,6 +4707,7 @@ INSERT INTO `list_options` ( list_id, option_id, title) VALUES ( 'lists','LBF_Va
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','int1','Integers1-100','{\"numericality\": {\"onlyInteger\": true,\"greaterThanOrEqualTo\": 1,\"lessThanOrEqualTo\":100}}','10');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','names','Names','{"format\":{\"pattern\":\"[a-zA-z]+([ \'-\\\\s][a-zA-Z]+)*\"}}','20');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','past_date','Past Date','{\"pastDate\":{\"message\":\"must be past date\"}}','30');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`, `seq`) VALUES ('LBF_Validations','future_date','Future Date','{\"futureDate\":{\"message\":\"must be future date\"}}','32');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','past_year','Past Year','{\"date\":{\"dateOnly\":true},\"pastDate\":{\"onlyYear\":true}}','35');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
@@ -4739,6 +4744,13 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `activity`)  VALUES (
 INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','apps','Apps');
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','*OpenEMR','main/main_screen.php',10,1,0);
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','Calendar','main/calendar/index.php',20,0,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('apps','oeSignerRemote','./../portal/sign/assets/signit.php',30,0,0);
+
+-- Sort Directions
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('lists', 'Sort_Direction', 'Sort Direction', 1, 0, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '0', 'asc', 10, 1, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `activity`) VALUES ('Sort_Direction', '1', 'desc', 20, 0, 1);
 
 -----------------------------------------------------------
 
@@ -4852,6 +4864,8 @@ CREATE TABLE `modules` (
   `date` DATETIME NOT NULL,
   `sql_run` TINYINT(4) DEFAULT '0',
   `type` TINYINT(4) DEFAULT '0',
+  `sql_version` VARCHAR(150) NOT NULL,
+  `acl_version` VARCHAR(150) NOT NULL,
   PRIMARY KEY (`mod_id`,`mod_directory`)
 ) ENGINE=InnoDB;
 
@@ -5315,12 +5329,13 @@ CREATE TABLE `openemr_postcalendar_events` (
 
 DROP TABLE IF EXISTS `patient_access_onsite`;
 CREATE TABLE `patient_access_onsite`(
-  `id` INT NOT NULL AUTO_INCREMENT ,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `pid` bigint(20),
-  `portal_username` VARCHAR(100) ,
-  `portal_pwd` VARCHAR(100) ,
+  `portal_username` VARCHAR(100),
+  `portal_pwd` VARCHAR(255),
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
-  `portal_salt` VARCHAR(100) ,
+  `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username',
+  `portal_onetime`  VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -5509,7 +5524,7 @@ CREATE TABLE  `patient_access_offsite` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `pid` bigint(20) NOT NULL,
   `portal_username` varchar(100) NOT NULL,
-  `portal_pwd` varchar(100) NOT NULL,
+  `portal_pwd` varchar(255) NOT NULL,
   `portal_pwd_status` tinyint(4) DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
   `authorize_net_id` VARCHAR(20) COMMENT 'authorize.net profile id',
   `portal_relation` VARCHAR(100) NULL,
@@ -5721,6 +5736,29 @@ CREATE TABLE `prices` (
   `pr_price` decimal(12,2) NOT NULL default '0.00' COMMENT 'price in local currency',
   PRIMARY KEY  (`pr_id`,`pr_selector`,`pr_level`)
 ) ENGINE=InnoDB;
+
+-----------------------------------------------------------
+
+--
+-- Table structure for table `pro_assessments`
+--
+
+DROP TABLE IF EXISTS `pro_assessments`;
+CREATE TABLE `pro_assessments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `form_oid` varchar(255) NOT NULL COMMENT 'unique id for specific instrument, pulled from assessment center API',
+  `form_name` varchar (255) NOT NULL COMMENT 'pulled from assessment center API',
+  `user_id` int(11) NOT NULL COMMENT 'ID for user that orders the form',
+  `deadline` datetime NOT NULL COMMENT 'deadline to complete the form, will be used when sending notification and reminders',
+  `patient_id` int(11) NOT NULL COMMENT 'ID for patient to order the form for',
+  `assessment_oid` varchar(255) NOT NULL COMMENT 'unique id for this specific assessment, pulled from assessment center API',
+  `status` varchar(255) NOT NULL COMMENT 'ordered or completed',
+  `score` double NOT NULL COMMENT 'T-Score for the assessment',
+  `error` double NOT NULL COMMENT 'Standard error for the score',
+  `created_at` datetime NOT NULL COMMENT 'timestamp recording the creation time of this assessment',
+  `updated_at` datetime NOT NULL COMMENT 'this field indicates the completion time when the status is completed',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -----------------------------------------------------------
 
@@ -6599,9 +6637,18 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-Code-Descriptions.zip', '6f9c77440132e30f565222ca9bb6599c');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2017-10-01', '2018-ICD-10-PCS-General-Equivalence-Mappings.zip', 'bb73c80e272da28712887d7979b1cebf');
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-CM-Code-Descriptions.zip', 'b23e0128eb2dce0cb007c31638a8dc00');
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES ('CQM_VALUESET', 'NIH_VSAC', '2017-09-29', 'ep_ec_only_cms_20170929.xml.zip','38d2e1a27646f2f09fcc389fd2335c50');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-CM-Code-Descriptions.zip', 'b23e0128eb2dce0cb007c31638a8dc00');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2018-10-01', '2019-ICD-10-PCS-Order-File.zip', 'eb545fe61ada9efad0ad97a669f8671f');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('CQM_VALUESET', 'NIH_VSAC', '2017-09-29', 'ep_ec_only_cms_20170929.xml.zip', '38d2e1a27646f2f09fcc389fd2335c50');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-CM-Codes.zip', '745546b3c94af3401e84003e1b143b9b');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2019-10-01', '2020-ICD-10-PCS-Order.zip', '8dc136d780ec60916e9e1fc999837bc8');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('CQM_VALUESET', 'NIH_VSAC', '2018-09-17', 'ep_ec_eh_cms_20180917.xml.zip', 'a1e584714b080aced6ca73b4b7b076a1');
 -----------------------------------------------------------
 
 --
@@ -6676,9 +6723,6 @@ CREATE TABLE `users` (
   `taxonomy` varchar(30) NOT NULL DEFAULT '207Q00000X',
   `calendar` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = appears in calendar',
   `abook_type` varchar(31) NOT NULL DEFAULT '',
-  `pwd_expiration_date` date default NULL,
-  `pwd_history1` longtext,
-  `pwd_history2` longtext,
   `default_warehouse` varchar(31) NOT NULL DEFAULT '',
   `irnpool` varchar(31) NOT NULL DEFAULT '',
   `state_license_number` VARCHAR(25) DEFAULT NULL,
@@ -6709,12 +6753,12 @@ CREATE TABLE `users_secure` (
   `id` bigint(20) NOT NULL,
   `username` varchar(255) DEFAULT NULL,
   `password` varchar(255),
-  `salt` varchar(255),
+  `last_update_password` datetime DEFAULT NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `password_history1` varchar(255),
-  `salt_history1` varchar(255),
   `password_history2` varchar(255),
-  `salt_history2` varchar(255),
+  `password_history3` varchar(255),
+  `password_history4` varchar(255),
   `last_challenge_response` datetime DEFAULT NULL,
   `login_work_area` text,
   `login_fail_counter` INT(11) DEFAULT '0',
@@ -8726,18 +8770,21 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_QP_RETINA_defaults', 'ODVESSELS_CRAO', 'v: CRAO', 880, 0, 0, 'VESSELS', 'CRAO', '', 0, 0, 0, 'OD'),
 ('Eye_QP_RETINA_defaults', 'OSVESSELS_CRAO', 'v: CRAO', 890, 0, 0, 'VESSELS', 'CRAO', '', 0, 0, 0, 'OS'),
 ('Eye_QP_RETINA_defaults', 'OUVESSELS_CRAO', 'v: CRAO', 900, 0, 0, 'VESSELS', 'CRAO', '', 0, 0, 0, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_0', 'p: clear field', 910, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_0', 'p: clear field', 920, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_0', 'p: clear field', 930, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_float', 'p: floater', 940, 0, 0, 'PERIPH', 'vitreous floater', '', 0, 0, 0, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_float', 'p: floater', 950, 0, 0, 'PERIPH', 'vitreous floater', '', 0, 0, 0, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_float', 'p: floater', 960, 0, 0, 'PERIPH', 'vitreous floater', '', 0, 0, 0, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_pvd', 'p: PVD', 970, 0, 0, 'PERIPH', 'PVD', '', 0, 0, 0, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_pvd', 'p: PVD', 980, 0, 0, 'PERIPH', 'PVD', '', 0, 0, 0, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_pvd', 'p: PVD', 990, 0, 0, 'PERIPH', 'PVD', '', 0, 0, 0, 'OU'),
-('Eye_QP_RETINA_defaults', 'ODPERIPH_vh', 'p: vit hem', 1000, 0, 0, 'PERIPH', 'vitreous hemorrhage', '', 0, 0, 0, 'OD'),
-('Eye_QP_RETINA_defaults', 'OSPERIPH_vh', 'p: vit hem', 1010, 0, 0, 'PERIPH', 'vitreous hemorrhage', '', 0, 0, 0, 'OS'),
-('Eye_QP_RETINA_defaults', 'OUPERIPH_vh', 'p: vit hem', 1020, 0, 0, 'PERIPH', 'vitreous hemorrhage', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_0', 'vit: clear field', 910, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_0', 'vit: clear field', 920, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_0', 'vit: clear field', 930, 0, 0, 'VITREOUS', '', '', 0, 0, 1, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_float', 'vit: floater', 940, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_float', 'vit: floater', 950, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_float', 'vit: floater', 960, 0, 0, 'VITREOUS', 'vitreous floater', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_pvd', 'vit: PVD', 970, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_pvd', 'vit: PVD', 980, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_pvd', 'vit: PVD', 990, 0, 0, 'VITREOUS', 'PVD', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODVITREOUS_vh', 'vit: hemorrhage', 1000, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSVITREOUS_vh', 'vit: hemorrhage', 1010, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUVITREOUS_vh', 'vit: hemorrhage', 1020, 0, 0, 'VITREOUS', 'vitreous hemorrhage', '', 0, 0, 0, 'OU'),
+('Eye_QP_RETINA_defaults', 'ODPERIPH_0', 'p: clear field', 1022, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OD'),
+('Eye_QP_RETINA_defaults', 'OSPERIPH_0', 'p: clear field', 1024, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OS'),
+('Eye_QP_RETINA_defaults', 'OUPERIPH_0', 'p: clear field', 1026, 0, 0, 'PERIPH', '', '', 0, 0, 1, 'OU'),
 ('Eye_QP_RETINA_defaults', 'ODPERIPH_tear', 'p: retinal tear', 1030, 0, 0, 'PERIPH', 'retinal tear', '', 0, 0, 0, 'OD'),
 ('Eye_QP_RETINA_defaults', 'OSPERIPH_tear', 'p: retinal tear', 1040, 0, 0, 'PERIPH', 'retinal tear', '', 0, 0, 0, 'OS'),
 ('Eye_QP_RETINA_defaults', 'OUPERIPH_tear', 'p: retinal tear', 1050, 0, 0, 'PERIPH', 'retinal tear', '', 0, 0, 0, 'OU'),
@@ -8797,7 +8844,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'ODIRIS', 'round', 230, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODLENS', 'clear', 210, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODMACULA', 'flat', 470, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'flat', 510, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'ODPERIPH', 'clear', 505, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILREACTIVITY', '+2', 270, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE1', '3', 250, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'ODPUPILSIZE2', '2', 260, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -8817,7 +8864,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('Eye_Defaults_for_GENERAL', 'OSIRIS', 'round', 240, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSLENS', 'clear', 220, 0, 0, '', 'ANTSEG', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSMACULA', 'flat', 480, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
-('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'flat', 520, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
+('Eye_Defaults_for_GENERAL', 'OSPERIPH', 'clear', 515, 0, 0, '', 'RETINA', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILREACTIVITY', '+2', 310, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE1', '3', 290, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
 ('Eye_Defaults_for_GENERAL', 'OSPUPILSIZE2', '2', 300, 0, 0, '', 'NEURO', '', 0, 0, 1, ''),
@@ -9482,7 +9529,7 @@ CREATE TABLE `form_eye_mag_prefs` (
   `selection` varchar(255) DEFAULT NULL,
   `ZONE_ORDER` int(11) DEFAULT NULL,
   `GOVALUE` varchar(10) DEFAULT '0',
-  `ordering` tinyint(4) DEFAULT NULL,
+  `ordering` smallint(6) DEFAULT NULL,
   `FILL_ACTION` varchar(10) NOT NULL DEFAULT 'ADD',
   `GORIGHT` varchar(50) NOT NULL,
   `GOLEFT` varchar(50) NOT NULL,
@@ -9530,8 +9577,8 @@ INSERT INTO `form_eye_mag_prefs` (`PEZONE`, `LOCATION`, `LOCATION_text`, `id`, `
 ('PREFS', 'VAX', 'Visual Acuities', 2048, 'VAX', 65, '0', 15, 'ADD', '', '', ''),
 ('PREFS', 'TOOLTIPS', 'Toggle Tooltips', 2048, 'TOOLTIPS', 66, 'on', NULL, 'ADD', '', '', ''),
 ('PREFS', 'W', 'Current Rx', 2048, 'W', 52, '1', 2, 'ADD', '', '', ''),
-('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', '', '', '', '', ''),
-('PREFS', 'MR_width','Detailed MR', 2048, 'MR_width', 81, '110', '', '', '', '', '');
+('PREFS', 'W_width', 'Detailed Rx', 2048, 'W_width', 80, '100', NULL, '', '', '', ''),
+('PREFS', 'MR_width', 'Detailed MR', 2048, 'MR_width', 81, '110', NULL, '', '', '', '');
 
 -----------------------------------------------------------
 
@@ -10151,10 +10198,11 @@ CREATE TABLE `form_eye_acuity` (
   `CTLOSVA1`      varchar(25)  DEFAULT NULL,
   `PAMODVA`       varchar(25)  DEFAULT NULL,
   `PAMOSVA`       varchar(25)  DEFAULT NULL,
-  `LIODVA`        varchar(25) NOT NULL,
-  `LIOSVA`        varchar(25) NOT NULL,
+  `LIODVA`        varchar(25)  NOT NULL,
+  `LIOSVA`        varchar(25)  NOT NULL,
   `WODVANEAR`     varchar(25)  DEFAULT NULL,
   `OSVANEARCC`    varchar(25)  DEFAULT NULL,
+  `BINOCVA`       varchar(25)  DEFAULT NULL,
   PRIMARY KEY `acuity_link` (`id`),
   UNIQUE KEY `id_pid` (`id`,`pid`)
   )
@@ -10414,50 +10462,50 @@ CREATE TABLE `form_eye_neuro` (
   `id`         bigint (20) NOT NULL COMMENT 'Links to forms.form_id',
   `pid`        bigint(20)   DEFAULT NULL,
   `ACT`        char (3) NOT NULL DEFAULT 'on',
-  `ACT5CCDIST` varchar (50) DEFAULT NULL,
-  `ACT1CCDIST` varchar (50) DEFAULT NULL,
-  `ACT2CCDIST` varchar (50) DEFAULT NULL,
-  `ACT3CCDIST` varchar (50) DEFAULT NULL,
-  `ACT4CCDIST` varchar (50) DEFAULT NULL,
-  `ACT6CCDIST` varchar (50) DEFAULT NULL,
-  `ACT7CCDIST` varchar (50) DEFAULT NULL,
-  `ACT8CCDIST` varchar (50) DEFAULT NULL,
-  `ACT9CCDIST` varchar (50) DEFAULT NULL,
-  `ACT10CCDIST` varchar (50) DEFAULT NULL,
-  `ACT11CCDIST` varchar (50) DEFAULT NULL,
-  `ACT1SCDIST` varchar (50) DEFAULT NULL,
-  `ACT2SCDIST` varchar (50) DEFAULT NULL,
-  `ACT3SCDIST` varchar (50) DEFAULT NULL,
-  `ACT4SCDIST` varchar (50) DEFAULT NULL,
-  `ACT5SCDIST` varchar (50) DEFAULT NULL,
-  `ACT6SCDIST` varchar (50) DEFAULT NULL,
-  `ACT7SCDIST` varchar (50) DEFAULT NULL,
-  `ACT8SCDIST` varchar (50) DEFAULT NULL,
-  `ACT9SCDIST` varchar (50) DEFAULT NULL,
-  `ACT10SCDIST` varchar (50) DEFAULT NULL,
-  `ACT11SCDIST` varchar (50) DEFAULT NULL,
-  `ACT1SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT2SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT3SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT4SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT5CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT6CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT7CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT8CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT9CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT10CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT11CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT5SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT6SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT7SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT8SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT9SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT10SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT11SCNEAR` varchar (50) DEFAULT NULL,
-  `ACT1CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT2CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT3CCNEAR` varchar (50) DEFAULT NULL,
-  `ACT4CCNEAR` varchar (50) DEFAULT NULL,
+  `ACT5CCDIST` text,
+  `ACT1CCDIST` text,
+  `ACT2CCDIST` text,
+  `ACT3CCDIST` text,
+  `ACT4CCDIST` text,
+  `ACT6CCDIST` text,
+  `ACT7CCDIST` text,
+  `ACT8CCDIST` text,
+  `ACT9CCDIST` text,
+  `ACT10CCDIST` text,
+  `ACT11CCDIST` text,
+  `ACT1SCDIST` text,
+  `ACT2SCDIST` text,
+  `ACT3SCDIST` text,
+  `ACT4SCDIST` text,
+  `ACT5SCDIST` text,
+  `ACT6SCDIST` text,
+  `ACT7SCDIST` text,
+  `ACT8SCDIST` text,
+  `ACT9SCDIST` text,
+  `ACT10SCDIST` text,
+  `ACT11SCDIST` text,
+  `ACT1SCNEAR` text,
+  `ACT2SCNEAR` text,
+  `ACT3SCNEAR` text,
+  `ACT4SCNEAR` text,
+  `ACT5CCNEAR` text,
+  `ACT6CCNEAR` text,
+  `ACT7CCNEAR` text,
+  `ACT8CCNEAR` text,
+  `ACT9CCNEAR` text,
+  `ACT10CCNEAR` text,
+  `ACT11CCNEAR` text,
+  `ACT5SCNEAR` text,
+  `ACT6SCNEAR` text,
+  `ACT7SCNEAR` text,
+  `ACT8SCNEAR` text,
+  `ACT9SCNEAR` text,
+  `ACT10SCNEAR` text,
+  `ACT11SCNEAR` text,
+  `ACT1CCNEAR` text,
+  `ACT2CCNEAR` text,
+  `ACT3CCNEAR` text,
+  `ACT4CCNEAR`text,
   `MOTILITYNORMAL` char (3) NOT NULL DEFAULT 'on',
   `MOTILITY_RS` char (1) DEFAULT '0',
   `MOTILITY_RI` char (1) DEFAULT '0',
@@ -10477,19 +10525,19 @@ CREATE TABLE `form_eye_neuro` (
   `MOTILITY_LLIO` int (1) DEFAULT NULL,
   `NEURO_COMMENTS` text,
   `STEREOPSIS` varchar (25) DEFAULT NULL,
-  `ODNPA` varchar (50) DEFAULT NULL,
-  `OSNPA` varchar (50) DEFAULT NULL,
-  `VERTFUSAMPS` varchar (50) DEFAULT NULL,
-  `DIVERGENCEAMPS` varchar (50) DEFAULT NULL,
+  `ODNPA` text,
+  `OSNPA` text,
+  `VERTFUSAMPS` text,
+  `DIVERGENCEAMPS` text,
   `NPC` varchar (10) DEFAULT NULL,
   `DACCDIST` varchar (20) DEFAULT NULL,
   `DACCNEAR` varchar (20) DEFAULT NULL,
   `CACCDIST` varchar (20) DEFAULT NULL,
   `CACCNEAR` varchar (20) DEFAULT NULL,
-  `ODCOLOR` varchar (50) DEFAULT NULL,
-  `OSCOLOR` varchar (50) DEFAULT NULL,
-  `ODCOINS` varchar (50) DEFAULT NULL,
-  `OSCOINS` varchar (50) DEFAULT NULL,
+  `ODCOLOR` text,
+  `OSCOLOR` text,
+  `ODCOINS` text,
+  `OSCOINS` text,
   `ODREDDESAT` varchar (20) DEFAULT NULL,
   `OSREDDESAT` varchar (20) DEFAULT NULL,
   PRIMARY KEY `neuro_link` (`id`),
@@ -10544,6 +10592,7 @@ CREATE TABLE `api_token` (
     `id`           bigint(20) NOT NULL AUTO_INCREMENT,
     `user_id`      bigint(20) NOT NULL,
     `token`        varchar(256) DEFAULT NULL,
+    `token_auth` varchar(255),
     `expiry`       datetime NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

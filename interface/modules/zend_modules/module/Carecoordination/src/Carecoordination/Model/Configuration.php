@@ -1,11 +1,12 @@
 <?php
+
 namespace Carecoordination\Model;
 
-use Zend\InputFilter\Factory as InputFactory;
-use Zend\InputFilter\InputFilter;
-use Zend\InputFilter\InputFilterAwareInterface;
-use Zend\InputFilter\InputFilterInterface;
-use Zend\Form\Form;
+use Laminas\InputFilter\Factory as InputFactory;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\InputFilterAwareInterface;
+use Laminas\InputFilter\InputFilterInterface;
+use Laminas\Form\Form;
 
 class Configuration extends Form implements InputFilterAwareInterface
 {
@@ -17,8 +18,8 @@ class Configuration extends Form implements InputFilterAwareInterface
         $this->setAttribute('method', 'post');
         
     /*
-	* Automatic SignOff settings
-	*/
+    * Automatic SignOff settings
+    */
         $this->add(array(
             'name'      => 'hie_auto_sign_off_id',
             'attributes'    => array(
@@ -31,10 +32,10 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Automatic Tranfer settings
-	*/
+    * Automatic Tranfer settings
+    */
         $this->add(array(
-        'type' => 'Zend\Form\Element\Checkbox',
+        'type' => 'Laminas\Form\Element\Checkbox',
             'name' => 'hie_auto_send_id',
             'attributes'    => array(
                     'id'        => 'hie_auto_send_id'
@@ -47,12 +48,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Author settings
-	*/
+    * Author settings
+    */
         $this->add(array(
             'name'  => 'hie_author_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -66,12 +67,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Data Enterer settings
-	*/
+    * Data Enterer settings
+    */
         $this->add(array(
             'name'  => 'hie_data_enterer_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -85,12 +86,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Informant settings
-	*/
+    * Informant settings
+    */
         $this->add(array(
             'name'  => 'hie_informant_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -104,11 +105,11 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Personal Informant settings
-	*/
+    * Personal Informant settings
+    */
         $this->add(array(
             'name'  => 'hie_personal_informant_id',
-            'attributes'=> array(
+            'attributes' => array(
                     'type'  => 'text',
                     'id'    => 'hie_personal_informant_id'
                 ),
@@ -118,12 +119,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Custodian settings
-	*/
+    * Custodian settings
+    */
         $this->add(array(
             'name'  => 'hie_custodian_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -137,12 +138,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Recipient settings
-	*/
+    * Recipient settings
+    */
         $this->add(array(
             'name'  => 'hie_recipient_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -156,12 +157,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Legal Authenticator settings
-	*/
+    * Legal Authenticator settings
+    */
         $this->add(array(
             'name'  => 'hie_legal_authenticator_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -175,12 +176,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Authenticator settings
-	*/
+    * Authenticator settings
+    */
         $this->add(array(
             'name'  => 'hie_authenticator_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -194,12 +195,12 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* Primary Care Provider settings
-	*/
+    * Primary Care Provider settings
+    */
         $this->add(array(
             'name'  => 'hie_primary_care_provider_id',
-        'type'      => 'Zend\Form\Element\Select',
-            'attributes'=> array(
+        'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
         'class'     => '',
         'data-options'  => 'required:true',
         'editable'  => 'false',
@@ -213,11 +214,11 @@ class Configuration extends Form implements InputFilterAwareInterface
         ));
     
     /*
-	* MIRTH IP settings
-	*/
+    * MIRTH IP settings
+    */
         $this->add(array(
             'name'  => 'hie_mirth_ip',
-            'attributes'=> array(
+            'attributes' => array(
                     'type'  => 'text',
                     'id'    => 'hie_mirth_ip'
                 ),
@@ -272,7 +273,7 @@ class Configuration extends Form implements InputFilterAwareInterface
         $users = array('0' => '');
         $res = sqlStatement("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'");
         while ($row = sqlFetchArray($res)) {
-            $users[$row['id']] = $row['fname']." ".$row['lname'];
+            $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
         return $users;

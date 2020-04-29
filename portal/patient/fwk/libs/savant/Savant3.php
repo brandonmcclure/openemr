@@ -188,18 +188,18 @@ class Savant3
         // the slowdown.
         switch (count($args)) {
             case 0:
-                return $plugin->$func ();
+                return $plugin->$func();
             
             case 1:
-                return $plugin->$func ( $args [0] );
+                return $plugin->$func($args [0]);
                 break;
             
             case 2:
-                return $plugin->$func ( $args [0], $args [1] );
+                return $plugin->$func($args [0], $args [1]);
                 break;
             
             case 3:
-                return $plugin->$func ( $args [0], $args [1], $args [2] );
+                return $plugin->$func($args [0], $args [1], $args [2]);
                 break;
             
             default:
@@ -299,7 +299,7 @@ class Savant3
             $opts ['Savant'] = $this;
             
             // instantiate the plugin with its options.
-            $plugins [$name] = new $class ( $opts );
+            $plugins [$name] = new $class($opts);
         }
         
         // return the plugin object
@@ -353,7 +353,7 @@ class Savant3
      */
     public function setAutoload($flag)
     {
-        $this->__config ['autoload'] = ( bool ) $flag;
+        $this->__config ['autoload'] = (bool) $flag;
     }
     
     /**
@@ -410,7 +410,7 @@ class Savant3
      */
     public function setExceptions($flag)
     {
-        $this->__config ['exceptions'] = ( bool ) $flag;
+        $this->__config ['exceptions'] = (bool) $flag;
     }
     
     /**
@@ -428,7 +428,7 @@ class Savant3
      */
     public function setExtract($flag)
     {
-        $this->__config ['extract'] = ( bool ) $flag;
+        $this->__config ['extract'] = (bool) $flag;
     }
     
     /**
@@ -497,7 +497,7 @@ class Savant3
      */
     public function setEscape()
     {
-        $this->__config ['escape'] = ( array ) @func_get_args();
+        $this->__config ['escape'] = (array) @func_get_args();
     }
     
     /**
@@ -523,7 +523,7 @@ class Savant3
      */
     public function addEscape()
     {
-        $args = ( array ) @func_get_args();
+        $args = (array) @func_get_args();
         $this->__config ['escape'] = array_merge($this->__config ['escape'], $args);
     }
     
@@ -586,7 +586,7 @@ class Savant3
             foreach ($this->__config ['escape'] as $func) {
                 // this if() shaves 0.001sec off of 300 calls.
                 if (is_string($func)) {
-                    $value = $func ( $value );
+                    $value = $func($value);
                 } else {
                     $value = call_user_func($func, $value);
                 }
@@ -602,7 +602,7 @@ class Savant3
             foreach ($callbacks as $func) {
                 // this if() shaves 0.001sec off of 300 calls.
                 if (is_string($func)) {
-                    $value = $func ( $value );
+                    $value = $func($value);
                 } else {
                     $value = call_user_func($func, $value);
                 }
@@ -1115,7 +1115,7 @@ class Savant3
      */
     public function setFilters()
     {
-        $this->__config ['filters'] = ( array ) @func_get_args();
+        $this->__config ['filters'] = (array) @func_get_args();
     }
     
     /**
@@ -1134,7 +1134,7 @@ class Savant3
     {
         // add the new filters to the static config variable
         // via the reference
-        foreach (( array ) @func_get_args() as $callback) {
+        foreach ((array) @func_get_args() as $callback) {
             $this->__config ['filters'] [] = $callback;
         }
     }
@@ -1218,7 +1218,7 @@ class Savant3
         // the error config array
         $config = array (
                 'code' => $code,
-                'info' => ( array ) $info,
+                'info' => (array) $info,
                 'level' => $level,
                 'trace' => $trace
         );

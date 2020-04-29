@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2011 Ken Chapple <ken@mi-squared.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -7,8 +8,8 @@
 // of the License, or (at your option) any later version.
 //
 require_once("RsPatient.php");
-/*	Defines a population of patients
- * 
+/*  Defines a population of patients
+ *
  */
 class RsPopulation implements Countable, Iterator, ArrayAccess
 {
@@ -20,7 +21,7 @@ class RsPopulation implements Countable, Iterator, ArrayAccess
     public function __construct(array $patientIdArray)
     {
         foreach ($patientIdArray as $patientId) {
-            $this->_patients[]= new RsPatient($patientId);
+            $this->_patients[] = new RsPatient($patientId);
         }
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OnsiteActivityViewController.php
  *
@@ -50,7 +51,7 @@ class OnsiteActivityViewController extends AppBaseController
             $user = $_SESSION['authUser'];
         } else {
             header("refresh:6;url= ./provider");
-            echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br> Shared session not allowed!.';
+            echo 'Redirecting in about 5 secs. Session shared with Onsite Portal<br /> Shared session not allowed!.';
             exit();
         }
 

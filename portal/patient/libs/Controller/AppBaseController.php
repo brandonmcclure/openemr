@@ -1,9 +1,10 @@
 <?php
+
 /** @package    Patient Portal::Controller */
 
 /** import supporting libraries */
 require_once("verysimple/Phreeze/Controller.php");
-require_once(dirname(__FILE__)."/../../../lib/appsql.class.php");
+require_once(dirname(__FILE__) . "/../../../lib/appsql.class.php");
 /**
  * AppBaseController is a base class Controller class from which
  * the front controllers inherit.  it is not necessary to use this
@@ -31,11 +32,11 @@ class AppBaseController extends Controller
     protected function Init()
     {
 
-    /*	if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
-		{
-			require_once("App/SecureApp.php");
-			$this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
-		}*/
+    /*  if ( !in_array($this->GetRouter()->GetUri(),array('login','loginform','logout')) )
+        {
+            require_once("App/SecureApp.php");
+            $this->RequirePermission(SecureApp::$PERMISSION_ADMIN,'SecureApp.LoginForm');
+        }*/
     }
 
     /**
@@ -64,7 +65,7 @@ class AppBaseController extends Controller
      */
     protected function SimpleObjectParams()
     {
-        return array('camelCase'=>true);
+        return array('camelCase' => true);
     }
 
     /**

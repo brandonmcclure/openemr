@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package Patient
  *
@@ -14,17 +15,21 @@
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
+
 /* */
 
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+
 if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) || $_SESSION['register'] === true)) {
     $pid = $_SESSION['pid'];
     $ignoreAuth = true;
-    GlobalConfig::$PORTAL = true;
+    GlobalConfig::$PORTAL = 1;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
 } else {
-    session_destroy();
-    GlobalConfig::$PORTAL = false;
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
     require_once(dirname(__FILE__) . "/../../interface/globals.php");
     if (!isset($_SESSION['authUserID'])) {
@@ -53,7 +58,7 @@ if (!$disable_utf8_flag) {
 GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
 // Turn off STRICT SQL
 GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone = '" .
-  (new DateTime())->format("P") . "'";
+    (new DateTime())->format("P") . "'";
 
 /**
  * the root url of the application with trailing slash, for example http://localhost/patient/
@@ -73,6 +78,6 @@ if ($GLOBALS['portal_onsite_two_basepath']) {
 
 // if Multibyte support is specified then we need to check if multibyte functions are available
 // if you receive this error then either install multibyte extensions or set Multibyte to false
-if (GlobalConfig::$CONNECTION_SETTING->Multibyte && ! function_exists('mb_strlen')) {
+if (GlobalConfig::$CONNECTION_SETTING->Multibyte && !function_exists('mb_strlen')) {
     die('<html>Multibyte extensions are not installed but Multibyte is set to true in _machine_config.php</html>');
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ippf_cyp_report.
  *
@@ -7,15 +8,16 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2010 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc");
-require_once("$srcdir/acl.inc");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -59,13 +61,13 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             // Print product total.
             if ($_POST['form_csvexport']) {
                 if (! $_POST['form_details']) {
-                    echo '"' . display_desc($product) . '",';
-                    echo '"' . $productqty            . '",';
-                    echo '"' . formatcyp($productcyp) . '",';
-                    echo '"' . formatcyp($producttotal) . '"' . "\n";
+                    echo csvEscape(display_desc($product)) . ',';
+                    echo csvEscape($productqty)            . ',';
+                    echo csvEscape(formatcyp($productcyp)) . ',';
+                    echo csvEscape(formatcyp($producttotal)) . "\n";
                 }
             } else {
-        ?>
+                ?>
 
        <tr bgcolor="#ddddff">
         <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
@@ -98,14 +100,14 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
 
     if ($_POST['form_details']) {
         if ($_POST['form_csvexport']) {
-            echo '"' . display_desc($product) . '",';
-            echo '"' . oeFormatShortDate(display_desc($transdate)) . '",';
-            echo '"' . display_desc($invnumber) . '",';
-            echo '"' . display_desc($qty) . '",';
-            echo '"' . formatcyp($rowcyp) . '",';
-            echo '"' . formatcyp($rowresult) . '"' . "\n";
+            echo csvEscape(display_desc($product)) . ',';
+            echo csvEscape(oeFormatShortDate(display_desc($transdate))) . ',';
+            echo csvEscape(display_desc($invnumber)) . ',';
+            echo csvEscape(display_desc($qty)) . ',';
+            echo csvEscape(formatcyp($rowcyp)) . ',';
+            echo csvEscape(formatcyp($rowresult)) . "\n";
         } else {
-        ?>
+            ?>
 
      <tr>
       <td class="detail">
@@ -113,22 +115,22 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
             $productleft = "&nbsp;"; ?>
   </td>
   <td class="dehead">
-        <?php echo text(oeFormatShortDate($transdate)); ?>
+            <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
   <td class="detail">
-        <?php echo text($invnumber); ?>
+            <?php echo text($invnumber); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text($qty); ?>
+            <?php echo text($qty); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(formatcyp($rowcyp)); ?>
+            <?php echo text(formatcyp($rowcyp)); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(formatcyp($rowresult)); ?>
+            <?php echo text(formatcyp($rowresult)); ?>
   </td>
  </tr>
-<?php
+            <?php
         } // End not csv export
     } // end details
     $producttotal += $rowresult;
@@ -137,8 +139,8 @@ function thisLineItem($patient_id, $encounter_id, $description, $transdate, $qty
     $grandqty     += $qty;
 } // end function
 
-if (! acl_check('acct', 'rep')) {
-    die(xl("Unauthorized access."));
+if (! AclMain::aclCheckCore('acct', 'rep')) {
+    die(xlt("Unauthorized access."));
 }
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
@@ -154,33 +156,29 @@ if ($_POST['form_csvexport']) {
     header("Content-Description: File Transfer");
   // CSV headers:
     if ($_POST['form_details']) {
-        echo '"Item",';
-        echo '"Date",';
-        echo '"Invoice",';
-        echo '"Qty",';
-        echo '"CYP",';
-        echo '"Result"' . "\n";
+        echo csvEscape("Item") . ',';
+        echo csvEscape("Date") . ',';
+        echo csvEscape("Invoice") . ',';
+        echo csvEscape("Qty") . ',';
+        echo csvEscape("CYP") . ',';
+        echo csvEscape("Result") . "\n";
     } else {
-        echo '"Item",';
-        echo '"Qty",';
-        echo '"CYP",';
-        echo '"Result"' . "\n";
+        echo csvEscape("Item") . ',';
+        echo csvEscape("Qty") . ',';
+        echo csvEscape("CYP") . ',';
+        echo csvEscape("Result") . "\n";
     }
 } else { // not export
-?>
+    ?>
 <html>
 <head>
 
-<link rel='stylesheet' href='<?php echo $css_header ?>' type='text/css'>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
+<title><?php echo xlt('CYP Report') ?></title>
 
-<title><?php xl('CYP Report', 'e') ?></title>
-
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-1-9-1/jquery.min.js"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+    <?php Header::setupHeader(['datetime-picker']); ?>
 
 <script language="JavaScript">
-    $(function() {
+    $(function () {
         var win = top.printLogSetup ? top : opener.top;
         win.printLogSetup(document.getElementById('printbutton'));
 
@@ -208,28 +206,28 @@ if ($_POST['form_csvexport']) {
 
  <tr>
   <td>
-<?php
+    <?php
   // Build a drop-down list of facilities.
   //
-  $query = "SELECT id, name FROM facility ORDER BY name";
-  $fres = sqlStatement($query);
-  echo "   <select name='form_facility'>\n";
-  echo "    <option value=''>-- All Facilities --\n";
-while ($frow = sqlFetchArray($fres)) {
-    $facid = $frow['id'];
-    echo "    <option value='" . attr($facid) . "'";
-    if ($facid == $form_facility) {
-        echo " selected";
+    $query = "SELECT id, name FROM facility ORDER BY name";
+    $fres = sqlStatement($query);
+    echo "   <select name='form_facility'>\n";
+    echo "    <option value=''>-- All Facilities --\n";
+    while ($frow = sqlFetchArray($fres)) {
+        $facid = $frow['id'];
+        echo "    <option value='" . attr($facid) . "'";
+        if ($facid == $form_facility) {
+            echo " selected";
+        }
+
+        echo ">" . text($frow['name']) . "\n";
     }
 
-    echo ">" . text($frow['name']) . "\n";
-}
-
-  echo "   </select>\n";
-?>
-   &nbsp;<?xl('From:','e')?>
+    echo "   </select>\n";
+    ?>
+   &nbsp;<?php echo xlt('From')?>:
    <input type='text' class='datepicker' name='form_from_date' id="form_from_date" size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>'>
-   &nbsp;To:
+   &nbsp;<?php echo xlt('To{{Range}}')?>:
    <input type='text' class='datepicker' name='form_to_date' id="form_to_date" size='10' value='<?php echo attr(oeFormatShortDate($form_to_date)); ?>'>
    &nbsp;
    <input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : ""; ?>><?php echo xlt('Details') ?>
@@ -255,12 +253,12 @@ while ($frow = sqlFetchArray($fres)) {
   <td class="dehead">
     <?php echo xlt('Item') ?>
   </td>
-<?php if ($_POST['form_details']) { ?>
+    <?php if ($_POST['form_details']) { ?>
   <td class="dehead">
-    <?php echo xlt('Date') ?>
+        <?php echo xlt('Date') ?>
   </td>
   <td class="dehead">
-    <?php echo xlt('Invoice') ?>
+        <?php echo xlt('Invoice') ?>
   </td>
 <?php } ?>
   <td class="dehead" align="right">
@@ -273,7 +271,7 @@ while ($frow = sqlFetchArray($fres)) {
     <?php echo xlt('Result') ?>
   </td>
  </tr>
-<?php
+    <?php
 } // end not export
 
 // If generating a report.
@@ -299,7 +297,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "JOIN form_encounter AS fe ON fe.pid = b.pid AND fe.encounter = b.encounter " .
     "WHERE b.code_type = 'MA' AND b.activity = 1 AND " .
     "fe.date >= ? AND fe.date <= ?";
-    array_push($sqlBindArray, $from_date.' 00:00:00', $to_date.' 23:59:59');
+    array_push($sqlBindArray, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
 
     // If a facility was specified.
     if ($form_facility) {
@@ -332,7 +330,7 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
     "fe.pid = s.pid AND fe.encounter = s.encounter AND " .
     "fe.date >= ? AND fe.date <= ? " .
     "WHERE s.fee != 0";
-    array_push($sqlBindArray, $from_date.' 00:00:00', $to_date.' 23:59:59');
+    array_push($sqlBindArray, $from_date . ' 00:00:00', $to_date . ' 23:59:59');
 
     // If a facility was specified.
     if ($form_facility) {
@@ -357,13 +355,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 
     if ($_POST['form_csvexport']) {
         if (! $_POST['form_details']) {
-            echo '"' . display_desc($product) . '",';
-            echo '"' . $productqty            . '",';
-            echo '"' . formatcyp($productcyp) . '",';
-            echo '"' . formatcyp($producttotal) . '"' . "\n";
+            echo csvEscape(display_desc($product)) . ',';
+            echo csvEscape($productqty)            . ',';
+            echo csvEscape(formatcyp($productcyp)) . ',';
+            echo csvEscape(formatcyp($producttotal)) . "\n";
         }
     } else {
-    ?>
+        ?>
 
    <tr bgcolor="#ddddff">
     <td class="detail" colspan="<?php echo $_POST['form_details'] ? 3 : 1; ?>">
@@ -404,13 +402,13 @@ if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
 } // end report generation
 
 if (! $_POST['form_csvexport']) {
-?>
+    ?>
 
 </table>
 </form>
 </center>
 </body>
 </html>
-<?php
+    <?php
 } // End not csv export
 ?>

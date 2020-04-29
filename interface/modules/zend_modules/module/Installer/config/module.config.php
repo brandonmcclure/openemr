@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/modules/zend_modules/module/Installer/config/module.config.php
  *
@@ -9,13 +10,14 @@
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\InvokableFactory;
-use Zend\Router\Http\Segment;
-use Zend\ServiceManager\AbstractPluginManager;
-use Zend\Db\ResultSet\ResultSet;
+use Laminas\ServiceManager\Factory\InvokableFactory;
+use Laminas\Router\Http\Segment;
+use Laminas\ServiceManager\AbstractPluginManager;
+use Laminas\Db\ResultSet\ResultSet;
 use Installer\Model\InstModule;
-use Zend\Db\Adapter\Adapter;
+use Laminas\Db\Adapter\Adapter;
 
 return array(
     'controllers' => array(
@@ -51,7 +53,21 @@ return array(
 
                 ),
             ),
-
+    'console' => array(
+        'router' => array(
+            'routes' => array(
+                'zfc-module' => array(
+                    'options' => array(
+                        'route' => 'zfc-module --site= --modaction= --modname= ',
+                        'defaults' => array(
+                            'controller' => Installer\Controller\InstallerController::class,
+                            'action' => 'command-install-module',
+                        ),
+                    )
+                ),
+            )
+        )
+    ),
     'view_manager' => array(
         'template_map' => array(
              'site/layout' => __DIR__ . '/../view/layout/layout.phtml',
@@ -60,11 +76,6 @@ return array(
             'installer' => __DIR__ . '/../view',
         ),
         'layout' => 'site/layout',
-    ),
-    'session' => array(
-                    'remember_me_seconds' => 2419200,
-                    'use_cookies' => true,
-                    'cookie_httponly' => true,
     ),
     'moduleconfig' => array(
 

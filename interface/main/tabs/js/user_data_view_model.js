@@ -8,7 +8,7 @@
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -33,24 +33,37 @@ function user_data_view_model(username,fname,lname,authGrp)
 
 }
 
-function viewPtFinder()
+function viewPtFinder(myMessage, searchAnyType, event)
 {
-    let finderUrl = webroot_url+"/interface/main/finder/dynamic_finder.php";
-    let srchBox = document.getElementById("anySearchBox").value;
-    if (srchBox) {
-        finderUrl += "?search_any=" + encodeURIComponent(srchBox);
-    }
-    navigateTab(finderUrl,"fin", function () {
-        activateTabByName("fin",true);
-    });
-}
+    event.stopImmediatePropagation;
+    event.preventDefault;
+    let srchBox = document.getElementById("anySearchBox");
+    var searchAnyType = searchAnyType;
+    srchBox.focus();
 
-function doAnySearch(event)
-{
-    if (event.which === 13 || event.keyCode === 13) {
-        document.getElementById("searchFinder").click();
+    let finderUrl = webroot_url+"/interface/main/finder/dynamic_finder.php";
+    let srchBoxVal = srchBox.value.trim();
+    let srchBoxWidth = srchBox.offsetWidth;
+    let srchBoxLength = srchBoxWidth < 50 ? 0 : srchBoxVal.length;// to let input box with values be displayed on mousedown on Smartphones
+
+    if (srchBoxLength > 0 ) {
+        finderUrl += "?search_any=" + encodeURIComponent(srchBoxVal);
+        navigateTab(finderUrl,"fin", function () {
+            activateTabByName("fin",true);
+        });
+        srchBox.blur();
+    } else if (srchBoxLength == 0 && srchBoxWidth > 50) {
+        if (searchAnyType == 'dual') {
+            srchBox.blur();
+            navigateTab(finderUrl,"fin", function () {
+                activateTabByName("fin",true);
+            });
+        } else if (searchAnyType == 'comprehensive') {
+            alert(arguments[0]);
+            srchBox.focus();
+        }
     }
-    return false;
+
 }
 
 function viewTgFinder()
@@ -119,5 +132,5 @@ function changeMFA()
 function logout()
 {
     top.restoreSession();
-    top.window.location=webroot_url+"/interface/logout.php";
+    document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php";
 }

@@ -1,5 +1,6 @@
 <?php
-// +-----------------------------------------------------------------------------+ 
+
+// +-----------------------------------------------------------------------------+
 // Copyright (C) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
 //
 //
@@ -19,7 +20,7 @@
 // openemr/interface/login/GnuGPL.html
 // For more information write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-// 
+//
 // Author:   Eldho Chacko <eldho@zhservices.com>
 //           Jacob T Paul <jacob@zhservices.com>
 //
@@ -36,7 +37,7 @@ if ($action == "updateRecordsListings") {
     $listingCounter = 1;
     foreach ($updateRecordsArray as $recordIDValue) {
         $query = "UPDATE template_users SET tu_template_order = ? WHERE tu_template_id = ? AND tu_user_id=?";
-        sqlStatement($query, array($listingCounter,$recordIDValue,$_SESSION['authId']));
+        sqlStatement($query, array($listingCounter,$recordIDValue,$_SESSION['authUserID']));
         $listingCounter = $listingCounter + 1;
     }
 }

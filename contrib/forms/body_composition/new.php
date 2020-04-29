@@ -1,4 +1,5 @@
 <?php
+
 /**
  * body_composition new.php
  *
@@ -13,12 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $scale_file_name = '/tmp/tanita_scale.txt';
 $scale_file_age = -1;
@@ -68,9 +69,7 @@ if ($_POST['bn_save']) {
         sqlStatement($query, array(rbvalue('form_body_type'),  trim($_POST['form_height']), trim($_POST['form_weight']), trim($_POST['form_bmi']),
          trim($_POST['form_bmr']), trim($_POST['form_impedance']), trim($_POST['form_fat_pct']), trim($_POST['form_fat_mass']),  trim($_POST['form_ffm']),
          trim($_POST['form_tbw']), trim($_POST['form_other']), $formid ));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = 'INSERT INTO form_body_composition (
          body_type, height, weight, bmi, bmr, impedance, fat_pct, fat_mass, ffm, tbw, other
          ) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
@@ -111,7 +110,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2" bottommargin="0" marginwidth="2" marginheight="0">

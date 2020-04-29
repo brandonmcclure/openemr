@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Patient Service
  *
@@ -6,19 +7,19 @@
  * @link      http://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017 Victor Kofia <victor.kofia@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
 
 namespace OpenEMR\Services;
 
 use Particle\Validator\Validator;
 
-class PatientService
+class PatientService extends BaseService
 {
-
     /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
@@ -26,26 +27,62 @@ class PatientService
      */
     private $patient_picture_fallback_id = -1;
 
-    private $pid;
+    private $validator;
 
     /**
      * Default constructor.
      */
     public function __construct()
     {
+        parent::__construct('patient_data');
     }
 
-    public function validate($patient)
+    // make this a comprehensive validation
+    public function validate($patient, $context, $id = null)
     {
-        $validator = new Validator();
+        $this->validator = new Validator();
+        if ($id) {
+            $vPid = $this->validatePid($id);
+            if ($vPid->isNotValid()) {
+                return $vPid;
+            }
+        }
 
-        $validator->required('fname')->lengthBetween(2, 255);
-        $validator->required('lname')->lengthBetween(2, 255);
-        $validator->required('sex')->lengthBetween(4, 30);
-        $validator->required('dob')->datetime('Y-m-d');
+        $this->validator->context(
+            'insert',
+            function (Validator $context) {
+                $context->required('fname', "First Name")->lengthBetween(2, 255);
+                $context->required('lname', 'Last Name')->lengthBetween(2, 255);
+                $context->required('sex', 'Gender')->lengthBetween(4, 30);
+                $context->required('DOB', 'Date of Birth')->datetime('Y-m-d');
+            }
+        );
 
+        $this->validator->context(
+            'update',
+            function (Validator $context) {
+                $context->copyContext(
+                    'insert',
+                    function ($rules) {
+                        foreach ($rules as $key => $chain) {
+                            $chain->required(false);
+                        }
+                    }
+                );
+            }
+        );
 
-        return $validator->validate($patient);
+        return $this->validator->validate($patient, $context);
+    }
+
+    public function validatePid($pid)
+    {
+        $this->validator->required('pid')->callback(
+            function ($value) {
+                return $this->verifyPid($value);
+            }
+        )->numeric();
+        return $this->validator->validate(['pid' => $pid]);
     }
 
     public function setPid($pid)
@@ -60,7 +97,8 @@ class PatientService
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
-     * @param $pid unique patient id
+     *
+     * @param  $pid unique patient id
      * @return recordset
      */
     public static function getChartTrackerInformationActivity($pid)
@@ -81,6 +119,7 @@ class PatientService
 
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
+     *
      * @return recordset
      */
     public static function getChartTrackerInformation()
@@ -112,46 +151,24 @@ class PatientService
 
     public function insert($data)
     {
+        $validationResult = $this->validate($data, 'insert');
+        if ($validationResult->isNotValid()) {
+            return $validationResult;
+        }
         $fresh_pid = $this->getFreshPid();
+        $data['pid'] = $fresh_pid;
+        $data['pubpid'] = $fresh_pid;
+        $data['date'] = date("Y-m-d H:i:s");
+        $data['regdate'] = date("Y-m-d H:i:s");
 
-        $sql = " INSERT INTO patient_data SET";
-        $sql .= "     pid=?,";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO patient_data SET ";
+        $sql .= $query['set'];
 
         $results = sqlInsert(
             $sql,
-            array(
-                $fresh_pid,
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["dob"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"]
-            )
+            $query['bind']
         );
-
         if ($results) {
             return $fresh_pid;
         }
@@ -161,92 +178,78 @@ class PatientService
 
     public function update($pid, $data)
     {
-        $sql = " UPDATE patient_data SET";
-        $sql .= "     title=?,";
-        $sql .= "     fname=?,";
-        $sql .= "     mname=?,";
-        $sql .= "     lname=?,";
-        $sql .= "     street=?,";
-        $sql .= "     postal_code=?,";
-        $sql .= "     city=?,";
-        $sql .= "     state=?,";
-        $sql .= "     country_code=?,";
-        $sql .= "     phone_contact=?,";
-        $sql .= "     dob=?,";
-        $sql .= "     sex=?,";
-        $sql .= "     race=?,";
-        $sql .= "     ethnicity=?";
-        $sql .= "     where pid=?";
+        $validationResult = $this->validate($data, 'update', $pid);
+        if ($validationResult->isNotValid()) {
+            return $validationResult;
+        }
+        $data['date'] = date("Y-m-d H:i:s");
 
+        $query = $this->buildUpdateColumns($data);
+        $sql = " UPDATE patient_data SET ";
+        $sql .= $query['set'];
+        $sql .= " WHERE pid = ?";
+        array_push($query['bind'], $pid);
         return sqlStatement(
             $sql,
-            array(
-                $data["title"],
-                $data["fname"],
-                $data["mname"],
-                $data["lname"],
-                $data["street"],
-                $data["postal_code"],
-                $data["city"],
-                $data["state"],
-                $data["country_code"],
-                $data["phone_contact"],
-                $data["dob"],
-                $data["sex"],
-                $data["race"],
-                $data["ethnicity"],
-                $pid
-            )
+            $query['bind']
         );
     }
 
-    public function getAll($search)
+    /**
+     * Returns a list of patients matching optional search criteria.
+     * Search criteria is conveyed by array where key = field/column name, value = field value.
+     * If no search criteria is provided, all records are returned.
+     *
+     * @param  $search search array parameters
+     * @return patient records matching criteria.
+     */
+    public function getAll($search = array())
     {
         $sqlBindArray = array();
 
-        $sql = "SELECT id,
-                   pid,
-                   pubpid,
-                   title, 
-                   fname,
-                   mname,
-                   lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
-                   phone_contact,
-                   email
-                   dob,
-                   sex,
-                   race,
-                   ethnicity
-                FROM patient_data";
+        $sql = 'SELECT  id,
+                        pid,
+                        pubpid,
+                        title,
+                        fname,
+                        mname,
+                        lname,
+                        ss,
+                        street,
+                        postal_code,
+                        city,
+                        state,
+                        county,
+                        country_code,
+                        drivers_license,
+                        contact_relationship,
+                        phone_contact,
+                        phone_home,
+                        phone_biz,
+                        phone_cell,
+                        email,
+                        DOB,
+                        sex,
+                        race,
+                        ethnicity,
+                        status
+                FROM patient_data';
 
-        if ($search['name'] || $search['fname'] || $search['lname'] || $search['dob']) {
-            $sql .= " WHERE ";
-
+        if (!empty($search)) {
+            $sql .= ' WHERE ';
             $whereClauses = array();
-            if ($search['name']) {
-                $search['name'] = '%' . $search['name'] . '%';
-                array_push($whereClauses, "CONCAT(lname,' ', fname) LIKE ?");
-                array_push($sqlBindArray, $search['name']);
-            }
-            if ($search['fname']) {
-                array_push($whereClauses, "fname=?");
-                array_push($sqlBindArray, $search['fname']);
-            }
-            if ($search['lname']) {
-                array_push($whereClauses, "lname=?");
-                array_push($sqlBindArray, $search['lname']);
-            }
-            if ($search['dob'] || $search['birthdate']) {
-                $search['dob'] = !empty($search['dob']) ? $search['dob'] : $search['birthdate'];
-                array_push($whereClauses, "dob=?");
-                array_push($sqlBindArray, $search['dob']);
-            }
 
+            foreach ($search as $fieldName => $fieldValue) {
+                // support wildcard match on specific fields
+                if (in_array($fieldName, array('fname', 'lname', 'street'))) {
+                    array_push($whereClauses, $fieldName . ' LIKE ?');
+                    array_push($sqlBindArray, '%' . $fieldValue . '%');
+                } else {
+                    // equality match
+                    array_push($whereClauses, $fieldName . ' = ?');
+                    array_push($sqlBindArray, $fieldValue);
+                }
+            }
             $sql .= implode(" AND ", $whereClauses);
         }
 
@@ -260,26 +263,37 @@ class PatientService
         return $results;
     }
 
+    /**
+     * Returns a single patient record by patient id.
+     */
     public function getOne()
     {
-        $sql = "SELECT id,
-                   pid,
-                   pubpid,
-                   title, 
-                   fname,
-                   mname,
-                   lname,
-                   street, 
-                   postal_code, 
-                   city, 
-                   state, 
-                   country_code, 
-                   phone_contact,
-                   email
-                   dob,
-                   sex,
-                   race,
-                   ethnicity
+        $sql = "SELECT  id,
+                        pid,
+                        pubpid,
+                        title,
+                        fname,
+                        mname,
+                        lname,
+                        ss,
+                        street,
+                        postal_code,
+                        city,
+                        state,
+                        county,
+                        country_code,
+                        drivers_license,
+                        contact_relationship,
+                        phone_contact,
+                        phone_home,
+                        phone_biz,
+                        phone_cell,
+                        email,
+                        DOB,
+                        sex,
+                        race,
+                        ethnicity,
+                        status
                 FROM patient_data
                 WHERE pid = ?";
 

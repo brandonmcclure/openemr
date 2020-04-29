@@ -1,4 +1,5 @@
 <?php
+
 //////////////////////////////////////////////////////////////////////
 // ------------------ DO NOT MODIFY VIEW.PHP !!! ---------------------
 // View.php is an exact duplicate of new.php.  If you wish to make
@@ -22,6 +23,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
+use OpenEMR\Core\Header;
+
 $row = array();
 
 if (! $encounter) { // comes from globals.php
@@ -42,9 +45,7 @@ if ($_POST['bn_save']) {
          plan = ?,
          WHERE id = ?";
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], $formid ));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_hist_exam_plan (
          history, examination, plan
          ) VALUES ( ?, ?, ? )";
@@ -66,7 +67,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 </head>
 
 <body <?php echo $top_bg_line;?> topmargin="0" rightmargin="0" leftmargin="2"

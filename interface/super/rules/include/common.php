@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/include/common.php
  *
@@ -24,10 +25,10 @@ function implode_funcs($glue, array $pieces, array $funcs)
     foreach ($pieces as $piece) {
         $new_piece = $piece;
         foreach ($funcs as $func) {
-            $new_piece = $func( $new_piece );
+            $new_piece = $func($new_piece);
         }
 
-        $new_pieces []= $new_piece;
+        $new_pieces [] = $new_piece;
     }
 
     return implode($glue, $new_pieces);
@@ -98,7 +99,7 @@ function controller_basedir()
 }
 function controller_dir($controller)
 {
-    $dir = controller_basedir() . '/'. $controller;
+    $dir = controller_basedir() . '/' . $controller;
     if (realpath($dir . '/../') != controller_basedir()) {
         throw Exception("Invalid controller '$controller'");
     }

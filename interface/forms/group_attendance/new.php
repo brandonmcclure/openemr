@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/forms/group_attendance/new.php
  *
@@ -13,14 +14,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-require_once("../../globals.php");
+require_once(__DIR__ . "/../../globals.php");
 require_once("functions.php");
 require_once(dirname(__FILE__) . "/../../../library/group.inc");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\Header;
+
 //Check acl
-$can_view = acl_check("groups", "gadd", false, 'view');
-$can_edit = acl_check("groups", "gadd", false, 'write');
+$can_view = AclMain::aclCheckCore("groups", "gadd", false, 'view');
+$can_edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');
 
 if (!$can_view && !$can_edit) {
     formJump();
@@ -53,20 +56,12 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 }
 
 ?>
-
 <html>
 
 <head>
 
-    <link rel="stylesheet" href="<?php echo $css_header;?>" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net-jqui/css/dataTables.jqueryui.css" type="text/css">
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+    <?php Header::setupHeader(['datatables', 'datatables-dt', 'datatables-bs']); ?>
 
-    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-1-9-1/jquery.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/jquery-ui/jquery-ui.min.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/datatables.net/js/jquery.dataTables.js"></script>
-    <script src="<?php echo $GLOBALS['assets_static_relative'];?>/bootstrap/dist/js/bootstrap.min.js?v=40"></script>
-    <script src="<?php echo $GLOBALS['web_root'];?>/library/dialog.js"></script>
 </head>
 
 <body class="body_top">
@@ -79,8 +74,8 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
         <div class="button_wrap">
             <span class='title'><?php echo xlt('Group Attendance Form'); ?></span>
             <input class="button-css add_button" type="button" value="<?php echo xla('Add'); ?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> >
+                ?> disabled <?php
+                                                                      } ?> >
         </div>
         <div id="add_participant_element"  style="display: none;">
             <div class="patient_wrap">
@@ -117,19 +112,19 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 <td ><?php echo text($participant['pid']); ?></td>
                 <td >
                     <select class="status_select" name="<?php echo "patientData[" . attr($participant['pid']) . "][status]" ;?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> >
+                        ?> disabled <?php
+                                                        } ?> >
                         <?php foreach ($statuses_in_meeting as $status_in_meeting) {?>
                             <option value="<?php echo attr($status_in_meeting['option_id']); ?>" <?php if ($participant['meeting_patient_status'] == $status_in_meeting['option_id']) {
                                 echo 'selected';
-}?> > <?php echo xlt($status_in_meeting['title']); ?></option>
+                                           }?> > <?php echo xlt($status_in_meeting['title']); ?></option>
                         <?php } ?>
                     </select>
                 </td>
                 <td >
                     <input class="comment" type="text" name="<?php echo "patientData[" . attr($participant['pid']) . "][comment]";  ?>" value="<?php echo attr($participant['meeting_patient_comment']) ;?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> ></input>
+                        ?> disabled <?php
+                                                             } ?> ></input>
                 </td>
             </tr>
         <?php } ?>
@@ -137,8 +132,8 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
     </table>
     <div class="action_buttons">
         <input name="submit" class="button-css" type="submit" value="<?php echo xla('Save'); ?>" <?php if (!$can_edit) {
-?> disabled <?php
-} ?> >
+            ?> disabled <?php
+                                                                     } ?> >
         <input class="button-css cancel" type="button" value="<?php echo xla('Cancel'); ?>">
     </div>
 </form>
@@ -155,7 +150,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
         });
 
         /* 'Add Participant' elements */
-        $('.add_button').click(function () {
+        $('.add_button').on('click', function () {
             $('#add_participant_element').show();
             $(this).hide();
         });
@@ -168,7 +163,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             dlgopen(url, '_blank', 500, 400);
         });
 
-        $('.cancel_button').click(function () {
+        $('.cancel_button').on('click', function () {
             $('#add_participant_element').hide();
             $('.add_button').show();
 
@@ -177,7 +172,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             $('.new_comment').val('');
         });
 
-        $('.add_patient_button').click(function(e){
+        $('.add_patient_button').on('click', function(e){
             var name = $('.new_patient').val();
 
             if(name == ""){
@@ -246,7 +241,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
 
 
         /* Form elements */
-        $('.cancel').click(function () {
+        $('.cancel').on('click', function () {
             top.restoreSession();
             parent.closeTab(window.name, false);
         });

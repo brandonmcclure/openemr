@@ -1,36 +1,38 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
  * class definitions from HL7 FHIR (https://www.hl7.org/fhir/)
- * 
+ *
  * Class creation date: June 14th, 2019
- * 
+ *
  * PHPFHIR Copyright:
- * 
+ *
  * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  *
  * FHIR Copyright Notice:
  *
  *   Copyright (c) 2011+, HL7, Inc.
  *   All rights reserved.
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without modification,
  *   are permitted provided that the following conditions are met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright notice, this
  *      list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright notice,
@@ -39,7 +41,7 @@
  *    * Neither the name of HL7 nor the names of its contributors may be used to
  *      endorse or promote products derived from this software without specific
  *      prior written permission.
- * 
+ *
  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -50,14 +52,14 @@
  *   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *   POSSIBILITY OF SUCH DAMAGE.
- * 
- * 
+ *
+ *
  *   Generated on Thu, Dec 27, 2018 22:37+1100 for FHIR v4.0.0
- * 
+ *
  *   Note: the schemas & schematrons do not contain all of the rules about what makes resources
  *   valid. Implementers will still need to be familiar with the content of the specification and with
  *   any profiles that apply to the resources in order to make a conformant implementation.
- * 
+ *
  */
 
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -793,7 +795,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addContact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contact" must be array of objects or null, '.gettype($data['contact']).' seen.');
+                    throw new \InvalidArgumentException('"contact" must be array of objects or null, ' . gettype($data['contact']) . ' seen.');
                 }
             }
             if (isset($data['description'])) {
@@ -805,7 +807,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addUseContext($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"useContext" must be array of objects or null, '.gettype($data['useContext']).' seen.');
+                    throw new \InvalidArgumentException('"useContext" must be array of objects or null, ' . gettype($data['useContext']) . ' seen.');
                 }
             }
             if (isset($data['jurisdiction'])) {
@@ -814,7 +816,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addJurisdiction($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, '.gettype($data['jurisdiction']).' seen.');
+                    throw new \InvalidArgumentException('"jurisdiction" must be array of objects or null, ' . gettype($data['jurisdiction']) . ' seen.');
                 }
             }
             if (isset($data['purpose'])) {
@@ -829,7 +831,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addBase($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"base" must be array of objects or null, '.gettype($data['base']).' seen.');
+                    throw new \InvalidArgumentException('"base" must be array of objects or null, ' . gettype($data['base']) . ' seen.');
                 }
             }
             if (isset($data['type'])) {
@@ -850,7 +852,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addTarget($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"target" must be array of objects or null, '.gettype($data['target']).' seen.');
+                    throw new \InvalidArgumentException('"target" must be array of objects or null, ' . gettype($data['target']) . ' seen.');
                 }
             }
             if (isset($data['multipleOr'])) {
@@ -865,7 +867,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addComparator($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"comparator" must be array of objects or null, '.gettype($data['comparator']).' seen.');
+                    throw new \InvalidArgumentException('"comparator" must be array of objects or null, ' . gettype($data['comparator']) . ' seen.');
                 }
             }
             if (isset($data['modifier'])) {
@@ -874,7 +876,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addModifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, '.gettype($data['modifier']).' seen.');
+                    throw new \InvalidArgumentException('"modifier" must be array of objects or null, ' . gettype($data['modifier']) . ' seen.');
                 }
             }
             if (isset($data['chain'])) {
@@ -883,7 +885,7 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addChain($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"chain" must be array of objects or null, '.gettype($data['chain']).' seen.');
+                    throw new \InvalidArgumentException('"chain" must be array of objects or null, ' . gettype($data['chain']) . ' seen.');
                 }
             }
             if (isset($data['component'])) {
@@ -892,11 +894,11 @@ class FHIRSearchParameter extends FHIRDomainResource implements \JsonSerializabl
                         $this->addComponent($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"component" must be array of objects or null, '.gettype($data['component']).' seen.');
+                    throw new \InvalidArgumentException('"component" must be array of objects or null, ' . gettype($data['component']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

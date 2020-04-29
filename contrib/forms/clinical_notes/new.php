@@ -1,4 +1,5 @@
 <?php
+
 /**
  * clinical_notes new.php
  *
@@ -13,12 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 require_once("../../globals.php");
 require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $row = array();
 
@@ -97,9 +98,7 @@ if ($_POST['bn_save']) {
          WHERE id = ?";
 
         sqlStatement($query, array($_POST['form_history'], $_POST['form_examination'], $_POST['form_plan'], rbvalue('fu_required'), $fu_timing, $formid));
-    } // If adding a new form...
- //
-    else {
+    } else { // If adding a new form...
         $query = "INSERT INTO form_clinical_notes ( " .
          "history, examination, plan, followup_required, followup_timing 
          ) VALUES ( ?, ?, ?, ?, ? )";
@@ -121,7 +120,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 
 </head>
 

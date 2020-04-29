@@ -4,6 +4,7 @@ require_once(dirname(__FILE__) . "/../pnotes.inc");
 require_once(dirname(__FILE__) . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 
 /**
  * class Document
@@ -17,95 +18,95 @@ class Document extends ORDataObject
 {
 
     /*
-	*	Database unique identifier
-	*	@var id
-	*/
+    *   Database unique identifier
+    *   @var id
+    */
     var $id;
 
     /*
-	*	DB unique identifier reference to some other table, this is not unique in the document table
-	*	@var int
-	*/
+    *   DB unique identifier reference to some other table, this is not unique in the document table
+    *   @var int
+    */
     var $foreign_id;
 
     /*
-	*	Enumerated DB field which is met information about how to use the URL
-	*	@var int can also be a the properly enumerated string
-	*/
+    *   Enumerated DB field which is met information about how to use the URL
+    *   @var int can also be a the properly enumerated string
+    */
     var $type;
 
     /*
-	*	Array mapping of possible for values for the type variable
-	*	mapping is array text name to index
-	*	@var array
-	*/
+    *   Array mapping of possible for values for the type variable
+    *   mapping is array text name to index
+    *   @var array
+    */
     var $type_array = array();
 
     /*
-	*	Size of the document in bytes if that is available
-	*	@var int
-	*/
+    *   Size of the document in bytes if that is available
+    *   @var int
+    */
     var $size;
 
     /*
-	*	Date the document was first persisted
-	*	@var string
-	*/
+    *   Date the document was first persisted
+    *   @var string
+    */
     var $date;
 
     /*
-	*	URL which point to the document, may be a file URL, a web URL, a db BLOB URL, or others
-	*	@var string
-	*/
+    *   URL which point to the document, may be a file URL, a web URL, a db BLOB URL, or others
+    *   @var string
+    */
     var $url;
 
     /*
-	*	URL which point to the thumbnail document, may be a file URL, a web URL, a db BLOB URL, or others
-	*	@var string
-	*/
+    *   URL which point to the thumbnail document, may be a file URL, a web URL, a db BLOB URL, or others
+    *   @var string
+    */
     var $thumb_url;
 
     /*
-	*	Mimetype of the document if available
-	*	@var string
-	*/
+    *   Mimetype of the document if available
+    *   @var string
+    */
     var $mimetype;
 
     /*
-	*	If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater, if a non-multi-page format this should be null or empty
-	*	@var int
-	*/
+    *   If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater, if a non-multi-page format this should be null or empty
+    *   @var int
+    */
     var $pages;
 
     /*
-	*	Foreign key identifier of who initially persisited the document,
-	*	potentially ownership could be changed but that would be up to an external non-document object process
-	*	@var int
-	*/
+    *   Foreign key identifier of who initially persisited the document,
+    *   potentially ownership could be changed but that would be up to an external non-document object process
+    *   @var int
+    */
     var $owner;
 
     /*
-	*	Timestamp of the last time the document was changed and persisted, auto maintained by DB, manually change at your own peril
-	*	@var int
-	*/
+    *   Timestamp of the last time the document was changed and persisted, auto maintained by DB, manually change at your own peril
+    *   @var int
+    */
     var $revision;
 
     /*
-	* Date (YYYY-MM-DD) logically associated with the document, e.g. when a picture was taken.
-	* @var string
-	*/
+    * Date (YYYY-MM-DD) logically associated with the document, e.g. when a picture was taken.
+    * @var string
+    */
     var $docdate;
 
     /*
-	* 40-character sha1 hash key of the document from when it was uploaded.
-	* @var string
-	*/
+    * 40-character sha1 hash key of the document from when it was uploaded.
+    * @var string
+    */
     var $hash;
 
     /*
-	* DB identifier reference to the lists table (the related issue), 0 if none.
-	* @var int
-	*/
+    * DB identifier reference to the lists table (the related issue), 0 if none.
+    * @var int
+    */
     var $list_id;
 
     // For tagging with the encounter
@@ -113,15 +114,15 @@ class Document extends ORDataObject
     var $encounter_check;
 
     /*
-	*	Whether the file is already imported
-	*	@var int
-	*/
+    *   Whether the file is already imported
+    *   @var int
+    */
     var $imported;
 
     /*
-	*	Whether the file is encrypted
-	*	@var int
-	*/
+    *   Whether the file is encrypted
+    *   @var int
+    */
     var $encrypted;
 
     /**
@@ -246,8 +247,8 @@ class Document extends ORDataObject
     function toString($html = false)
     {
         $string .= "\n"
-        . "ID: " . $this->id."\n"
-        . "FID: " . $this->foreign_id."\n"
+        . "ID: " . $this->id . "\n"
+        . "FID: " . $this->foreign_id . "\n"
         . "type: " . $this->type . "\n"
         . "type_array: " . print_r($this->type_array, true) . "\n"
         . "size: " . $this->size . "\n"
@@ -271,9 +272,9 @@ class Document extends ORDataObject
     }
 
     /**#@+
-	*	Getter/Setter methods used by reflection to affect object in persist/poulate operations
-	*	@param mixed new value for given attribute
-	*/
+    *   Getter/Setter methods used by reflection to affect object in persist/poulate operations
+    *   @param mixed new value for given attribute
+    */
     function set_id($id)
     {
         $this->id = $id;
@@ -364,7 +365,7 @@ class Document extends ORDataObject
     */
     function get_url_path()
     {
-        return dirname(preg_replace("|^(.*)://|", "", $this->url)) ."/";
+        return dirname(preg_replace("|^(.*)://|", "", $this->url)) . "/";
     }
     function get_path_depth()
     {
@@ -399,8 +400,8 @@ class Document extends ORDataObject
         return $this->owner;
     }
     /*
-	*	No getter for revision because it is updated automatically by the DB.
-	*/
+    *   No getter for revision because it is updated automatically by the DB.
+    */
     function set_revision($revision)
     {
         $this->revision = $revision;
@@ -464,12 +465,12 @@ class Document extends ORDataObject
         return $this->encrypted;
     }
     /*
-	*	Overridden function to stor current object state in the db.
-	*	current overide is to allow for a just in time foreign id, often this is needed
-	*	when the object is never directly exposed and is handled as part of a larger
-	*	object hierarchy.
-	*	@param int $fid foreign id that should be used so that this document can be related (joined) on it later
-	*/
+    *   Overridden function to stor current object state in the db.
+    *   current overide is to allow for a just in time foreign id, often this is needed
+    *   when the object is never directly exposed and is handled as part of a larger
+    *   object hierarchy.
+    *   @param int $fid foreign id that should be used so that this document can be related (joined) on it later
+    */
 
     function persist($fid = "")
     {
@@ -614,7 +615,7 @@ class Document extends ORDataObject
         if ($this->storagemethod == 1) {
             // Store it using CouchDB.
             $couch = new CouchDB();
-            $docname = $_SESSION['authId'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
+            $docname = $_SESSION['authUserID'] . $filename . $patient_id . $encounter_id . date("%Y-%m-%d H:i:s");
             $docid = $couch->stringToId($docname);
             $json = json_encode(base64_encode($data));
             if ($has_thumbnail) {
@@ -653,12 +654,12 @@ class Document extends ORDataObject
             if ((!empty($higher_level_path)) && (is_numeric($patient_id) && $patient_id > 0)) {
                 // Allow higher level directory structure in documents directory and a patient is mapped.
                 $filepath = $repository . $higher_level_path . "/";
-            } else if (!empty($higher_level_path)) {
+            } elseif (!empty($higher_level_path)) {
                 // Allow higher level directory structure in documents directory and there is no patient mapping
                 // (will create up to 10000 random directories and increment the path_depth by 1).
                 $filepath = $repository . $higher_level_path . '/' . rand(1, 10000)  . '/';
                 ++$path_depth;
-            } else if (!(is_numeric($patient_id)) || !($patient_id > 0)) {
+            } elseif (!(is_numeric($patient_id)) || !($patient_id > 0)) {
                 // This is the default action except there is no patient mapping (when patient_id is 00 or direct)
                 // (will create up to 10000 random directories and set the path_depth to 2).
                 $filepath = $repository . $patient_id . '/' . rand(1, 10000)  . '/';

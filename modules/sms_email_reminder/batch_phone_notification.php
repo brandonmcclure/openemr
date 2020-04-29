@@ -1,26 +1,23 @@
 <?php
-// Copyright (C) 2010 Maviq <info@maviq.com>
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-////////////////////////////////////////////////////////////////////
-// Package:	cron_phone_notification
-// Purpose:	to be run by cron every hour, look for appointments
-//		in the pre-notification period and send an phone reminder
-//		Based on cron_email_notification by Larry Lart
-// Created by:
-// Updated by:	Maviq on 01/12/2010
-////////////////////////////////////////////////////////////////////
+
+/*
+ * Purpose: to be run by cron every hour, look for appointments
+ * in the pre-notification period and send an phone reminder
+ * Based on cron_email_notification by Larry Lart
+ *
+ * @package OpenEMR
+ * @author Maviq <info@maviq.com>
+ * @copyright Copyright (c) 2010 Maviq <info@maviq.com>
+ * @link https://www.open-emr.org
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 // comment below exit if plan to use this script
 exit;
 
 $backpic = "";
 //phone notification
-$ignoreAuth=1;
+$ignoreAuth = 1;
 
 //Set the working directory to the path of the file
 $current_dir = dirname($_SERVER['SCRIPT_FILENAME']);
@@ -55,13 +52,13 @@ $fac_msg_map = $facilities['msg_map'];
 
 // get patient data for send alert
 $db_patient = cron_getPhoneAlertpatientData($type, $before_trigger_hours);
-echo "<br>" . htmlspecialchars(xl("Total Records Found") . ": " . count($db_patient), ENT_QUOTES);
+echo "<br />" . htmlspecialchars(xl("Total Records Found") . ": " . count($db_patient), ENT_QUOTES);
 
 //Create a new instance of the phone service client
 $client = new MaviqClient($phone_id, $phone_token, $phone_url);
 
-for ($p=0; $p<count($db_patient); $p++) {
-    $prow =$db_patient[$p];
+for ($p = 0; $p < count($db_patient); $p++) {
+    $prow = $db_patient[$p];
 
     //Get the apptDate and apptTime
     $p_date = $prow['pc_eventDate'];
@@ -98,7 +95,7 @@ for ($p=0; $p<count($db_patient); $p++) {
     if ($response->IsError) {
         $strMsg =   "Error starting phone call for {$prow['fname']} | {$prow['lname']} | {$prow['phone_home']} | {$appt_date} | {$appt_time} | {$response->ErrorMessage}\n";
     } else {
-        $strMsg = "\n========================".$type." || ".date("Y-m-d H:i:s")."=========================";
+        $strMsg = "\n========================" . $type . " || " . date("Y-m-d H:i:s") . "=========================";
         $strMsg .= "\nPhone reminder sent successfully: {$prow['fname']} | {$prow['lname']} |	| {$prow['phone_home']} | {$appt_date} | {$appt_time} ";
         // insert entry in notification_log table
         cron_InsertNotificationLogEntry($prow, $greeting, $phone_url);
@@ -114,8 +111,8 @@ for ($p=0; $p<count($db_patient); $p++) {
 sqlClose();
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_updateentry
-// Purpose:	update status yes if alert send to patient
+// Function:    cron_updateentry
+// Purpose: update status yes if alert send to patient
 ////////////////////////////////////////////////////////////////////
 function cron_updateentry($type, $pid, $pc_eid)
 {
@@ -123,32 +120,31 @@ function cron_updateentry($type, $pid, $pc_eid)
     $query = "update openemr_postcalendar_events set ";
 
     // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type=='SMS') {
-        $query.=" pc_sendalertsms='YES' ";
-    } elseif ($type=='Email') {
-        $query.=" pc_sendalertemail='YES' ";
-    } //Added by Yijin for phone reminder.. Uses the same field as SMS.
-    elseif ($type=='Phone') {
-        $query.=" pc_sendalertsms='YES' ";
+    if ($type == 'SMS') {
+        $query .= " pc_sendalertsms='YES' ";
+    } elseif ($type == 'Email') {
+        $query .= " pc_sendalertemail='YES' ";
+    } elseif ($type == 'Phone') { // Added by Yijin for phone reminder.. Uses the same field as SMS.
+        $query .= " pc_sendalertsms='YES' ";
     }
 
-    $query .=" where pc_pid=? and pc_eid=? ";
-    //echo "<br>".$query;
+    $query .= " where pc_pid=? and pc_eid=? ";
+    // echo "<br />".$query;
     $db_sql = (sqlStatement($query, array($pid, $pc_eid)));
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getPhoneAlertpatientData
-// Purpose:	get patient data for send to alert
+// Function:    cron_getPhoneAlertpatientData
+// Purpose: get patient data for send to alert
 ////////////////////////////////////////////////////////////////////
 function cron_getPhoneAlertpatientData($type, $trigger_hours)
 {
 
     //Added by Yijin 1/12/10 to handle phone reminders. Patient needs to have hipaa Voice flag set to yes and a home phone
-    if ($type=='Phone') {
+    if ($type == 'Phone') {
         $ssql = " and pd.hipaa_voice='YES' and pd.phone_home<>''	and ope.pc_sendalertsms='NO' and ope.pc_apptstatus != '*' ";
 
-        $check_date = date("Y-m-d", mktime(date("H")+$trigger_hours, 0, 0, date("m"), date("d"), date("Y")));
+        $check_date = date("Y-m-d", mktime(date("H") + $trigger_hours, 0, 0, date("m"), date("d"), date("Y")));
     }
 
     $patient_field = "pd.pid,pd.title,pd.fname,pd.lname,pd.mname,pd.phone_cell,pd.email,pd.hipaa_allowsms,pd.hipaa_allowemail,pd.phone_home,pd.hipaa_voice,";
@@ -166,7 +162,7 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 
     $db_patient = (sqlStatement($query, array($check_date)));
     $patient_array = array();
-    $cnt=0;
+    $cnt = 0;
     while ($prow = sqlFetchArray($db_patient)) {
         $patient_array[$cnt] = $prow;
         $cnt++;
@@ -176,12 +172,12 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_InsertNotificationLogEntry
-// Purpose:	insert log entry in table
+// Function:    cron_InsertNotificationLogEntry
+// Purpose: insert log entry in table
 ////////////////////////////////////////////////////////////////////
 function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 {
-    $patient_info = $prow['title']." ".$prow['fname']." ".$prow['mname']." ".$prow['lname']."|||".$prow['phone_home'];
+    $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_home'];
 
     $message = $phone_msg;
 
@@ -191,22 +187,22 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway)
 }
 
 ////////////////////////////////////////////////////////////////////
-// Function:	WriteLog
-// Purpose:	written log into file
+// Function:    WriteLog
+// Purpose: written log into file
 ////////////////////////////////////////////////////////////////////
 function WriteLog($data)
 {
     $log_file = $GLOBALS['phone_reminder_log_dir'];
 
     if ($log_file != null) {
-        $filename = $log_file . "/"."phone_reminder_cronlog_".date("Ymd").".html";
+        $filename = $log_file . "/" . "phone_reminder_cronlog_" . date("Ymd") . ".html";
 
         if (!$fp = fopen($filename, 'a')) {
             print "Cannot open file ($filename)";
         } else {
             $sdata = "\n====================================================================\n";
 
-            if (!fwrite($fp, $data.$sdata)) {
+            if (!fwrite($fp, $data . $sdata)) {
                 print "Cannot write to file ($filename)";
             }
 
@@ -215,8 +211,8 @@ function WriteLog($data)
     }
 }
 ////////////////////////////////////////////////////////////////////
-// Function:	cron_getFacilities
-// Purpose:	get facilities data once and store in map
+// Function:    cron_getFacilities
+// Purpose: get facilities data once and store in map
 ////////////////////////////////////////////////////////////////////
 function cron_getFacilitiesMap()
 {

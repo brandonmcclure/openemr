@@ -1,4 +1,5 @@
 <?php
+
 /**
  *  $Id$
  *
@@ -69,7 +70,7 @@ function smarty_function_pc_filter($args, &$smarty)
     list($dbconn) = pnDBGetConn();
     $pntable = pnDBGetTables();
     //================================================================
-    //	build the username filter pulldown
+    //  build the username filter pulldown
     //================================================================
     if (in_array('user', $types)) {
         @define('_PC_FORM_USERNAME', true);
@@ -80,12 +81,12 @@ function smarty_function_pc_filter($args, &$smarty)
         $result = $dbconn->Execute($sql);
         if ($result !== false) {
             $useroptions  = "<select multiple='multiple' size='3' name=\"pc_username[]\" class=\"$class\">";
-            $useroptions .= "<option value=\"\" class=\"$class\">"._PC_FILTER_USERS."</option>";
+            $useroptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_USERS . "</option>";
             $selected = $pc_username == '__PC_ALL__' ? 'selected="selected"' : '';
-            $useroptions .= "<option value=\"__PC_ALL__\" class=\"$class\" $selected>"._PC_FILTER_USERS_ALL."</option>";
+            $useroptions .= "<option value=\"__PC_ALL__\" class=\"$class\" $selected>" . _PC_FILTER_USERS_ALL . "</option>";
             for (; !$result->EOF; $result->MoveNext()) {
                 $sel = $pc_username == $result->fields[0] ? 'selected="selected"' : '';
-                $useroptions .= "<option value=\"".$result->fields[0]."\" $sel class=\"$class\">".$result->fields[1] . ", " . $result->fields[2] ."</option>";
+                $useroptions .= "<option value=\"" . $result->fields[0] . "\" $sel class=\"$class\">" . $result->fields[1] . ", " . $result->fields[2] . "</option>";
             }
 
             $useroptions .= '</select>';
@@ -94,14 +95,14 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     //================================================================
-    //	build the category filter pulldown
+    //  build the category filter pulldown
     //================================================================
     if (in_array('category', $types)) {
         @define('_PC_FORM_CATEGORY', true);
         $category = pnVarCleanFromInput('pc_category');
         $categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
         $catoptions  = "<select name=\"pc_category\" class=\"$class\">";
-        $catoptions .= "<option value=\"\" class=\"$class\">"._PC_FILTER_CATEGORY."</option>";
+        $catoptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_CATEGORY . "</option>";
         foreach ($categories as $c) {
             $sel = $category == $c['id'] ? 'selected="selected"' : '';
             $catoptions .= "<option value=\"$c[id]\" $sel class=\"$class\">" . xl_appt_category($c[name]) . "</option>";
@@ -111,14 +112,14 @@ function smarty_function_pc_filter($args, &$smarty)
     }
 
     //================================================================
-    //	build the topic filter pulldown
+    //  build the topic filter pulldown
     //================================================================
     if (in_array('topic', $types) && _SETTING_DISPLAY_TOPICS) {
         @define('_PC_FORM_TOPIC', true);
         $topic = pnVarCleanFromInput('pc_topic');
         $topics = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getTopics');
         $topoptions  = "<select name=\"pc_topic\" class=\"$class\">";
-        $topoptions .= "<option value=\"\" class=\"$class\">"._PC_FILTER_TOPIC."</option>";
+        $topoptions .= "<option value=\"\" class=\"$class\">" . _PC_FILTER_TOPIC . "</option>";
         foreach ($topics as $t) {
             $sel = $topic == $t['id'] ? 'selected="selected"' : '';
             $topoptions .= "<option value=\"$t[id]\" $sel class=\"$class\">$t[text]</option>";
@@ -130,14 +131,14 @@ function smarty_function_pc_filter($args, &$smarty)
     }
     
     //================================================================
-    //	build it in the correct order
+    //  build it in the correct order
     //================================================================
     if (!isset($label)) {
         $label = _PC_TPL_VIEW_SUBMIT;
     }
 
     $submit = "<input type=\"submit\" valign=\"middle\" name=\"submit\" value=\"$label\" class=\"$class\" />";
-    $orderArray = array('user'=>$useroptions, 'category'=>$catoptions, 'topic'=>$topoptions, 'jump'=>$submit);
+    $orderArray = array('user' => $useroptions, 'category' => $catoptions, 'topic' => $topoptions, 'jump' => $submit);
     
     if (isset($order)) {
         $newOrder = array();

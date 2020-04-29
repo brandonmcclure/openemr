@@ -9,7 +9,7 @@ function moveOptions_11(theSelFrom, theSelTo){
     document.getElementById(theSelFrom).style.color="red";
     document.getElementById(theSelFrom).style.fontStyle="italic";
     var str=document.getElementById(theSelFrom).innerHTML;
-    if(window.frames[0].document.body.innerHTML=='<br>')
+    if(window.frames[0].document.body.innerHTML=='<br />')
     window.frames[0].document.body.innerHTML="";
     var patt=/\?\?/;
     var result=patt.test(str);
@@ -142,7 +142,19 @@ function TemplateSentence(val){
     },
     success: function(thedata){
                 //alert(thedata)
-                document.getElementById('template_sentence').innerHTML = thedata;
+                let tempEl = document.createElement( 'div' ),finalEl='';
+                tempEl.innerHTML = thedata;
+                for (let i=0; i< tempEl.children.length; i++) {
+                    let ele = tempEl.children[i],temp;
+                    if(ele.id){
+                        ele.classList.add("draggable")
+                        temp = document.createElement( 'div' )
+                        temp.classList.add("droppable");
+                        temp.appendChild(ele.cloneNode(true));
+                        finalEl += temp.outerHTML;
+                    }
+                }
+                document.getElementById('template_sentence').innerHTML = finalEl;
                 },
     error:function(){
         //alert("fail");

@@ -1,36 +1,38 @@
-<?php namespace OpenEMR\FHIR\R4\FHIRDomainResource;
+<?php
+
+namespace OpenEMR\FHIR\R4\FHIRDomainResource;
 
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
  * class definitions from HL7 FHIR (https://www.hl7.org/fhir/)
- * 
+ *
  * Class creation date: June 14th, 2019
- * 
+ *
  * PHPFHIR Copyright:
- * 
+ *
  * Copyright 2016-2017 Daniel Carbone (daniel.p.carbone@gmail.com)
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *        http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  *
  * FHIR Copyright Notice:
  *
  *   Copyright (c) 2011+, HL7, Inc.
  *   All rights reserved.
- * 
+ *
  *   Redistribution and use in source and binary forms, with or without modification,
  *   are permitted provided that the following conditions are met:
- * 
+ *
  *    * Redistributions of source code must retain the above copyright notice, this
  *      list of conditions and the following disclaimer.
  *    * Redistributions in binary form must reproduce the above copyright notice,
@@ -39,7 +41,7 @@
  *    * Neither the name of HL7 nor the names of its contributors may be used to
  *      endorse or promote products derived from this software without specific
  *      prior written permission.
- * 
+ *
  *   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
@@ -50,14 +52,14 @@
  *   WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  *   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *   POSSIBILITY OF SUCH DAMAGE.
- * 
- * 
+ *
+ *
  *   Generated on Thu, Dec 27, 2018 22:37+1100 for FHIR v4.0.0
- * 
+ *
  *   Note: the schemas & schematrons do not contain all of the rules about what makes resources
  *   valid. Implementers will still need to be familiar with the content of the specification and with
  *   any profiles that apply to the resources in order to make a conformant implementation.
- * 
+ *
  */
 
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -685,7 +687,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, '.gettype($data['identifier']).' seen.');
+                    throw new \InvalidArgumentException('"identifier" must be array of objects or null, ' . gettype($data['identifier']) . ' seen.');
                 }
             }
             if (isset($data['udiDeviceIdentifier'])) {
@@ -694,7 +696,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addUdiDeviceIdentifier($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"udiDeviceIdentifier" must be array of objects or null, '.gettype($data['udiDeviceIdentifier']).' seen.');
+                    throw new \InvalidArgumentException('"udiDeviceIdentifier" must be array of objects or null, ' . gettype($data['udiDeviceIdentifier']) . ' seen.');
                 }
             }
             if (isset($data['manufacturerString'])) {
@@ -709,7 +711,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addDeviceName($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"deviceName" must be array of objects or null, '.gettype($data['deviceName']).' seen.');
+                    throw new \InvalidArgumentException('"deviceName" must be array of objects or null, ' . gettype($data['deviceName']) . ' seen.');
                 }
             }
             if (isset($data['modelNumber'])) {
@@ -724,7 +726,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addSpecialization($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"specialization" must be array of objects or null, '.gettype($data['specialization']).' seen.');
+                    throw new \InvalidArgumentException('"specialization" must be array of objects or null, ' . gettype($data['specialization']) . ' seen.');
                 }
             }
             if (isset($data['version'])) {
@@ -733,7 +735,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addVersion($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"version" must be array of objects or null, '.gettype($data['version']).' seen.');
+                    throw new \InvalidArgumentException('"version" must be array of objects or null, ' . gettype($data['version']) . ' seen.');
                 }
             }
             if (isset($data['safety'])) {
@@ -742,7 +744,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addSafety($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"safety" must be array of objects or null, '.gettype($data['safety']).' seen.');
+                    throw new \InvalidArgumentException('"safety" must be array of objects or null, ' . gettype($data['safety']) . ' seen.');
                 }
             }
             if (isset($data['shelfLifeStorage'])) {
@@ -751,7 +753,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addShelfLifeStorage($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"shelfLifeStorage" must be array of objects or null, '.gettype($data['shelfLifeStorage']).' seen.');
+                    throw new \InvalidArgumentException('"shelfLifeStorage" must be array of objects or null, ' . gettype($data['shelfLifeStorage']) . ' seen.');
                 }
             }
             if (isset($data['physicalCharacteristics'])) {
@@ -763,7 +765,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addLanguageCode($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"languageCode" must be array of objects or null, '.gettype($data['languageCode']).' seen.');
+                    throw new \InvalidArgumentException('"languageCode" must be array of objects or null, ' . gettype($data['languageCode']) . ' seen.');
                 }
             }
             if (isset($data['capability'])) {
@@ -772,7 +774,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addCapability($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"capability" must be array of objects or null, '.gettype($data['capability']).' seen.');
+                    throw new \InvalidArgumentException('"capability" must be array of objects or null, ' . gettype($data['capability']) . ' seen.');
                 }
             }
             if (isset($data['property'])) {
@@ -781,7 +783,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addProperty($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"property" must be array of objects or null, '.gettype($data['property']).' seen.');
+                    throw new \InvalidArgumentException('"property" must be array of objects or null, ' . gettype($data['property']) . ' seen.');
                 }
             }
             if (isset($data['owner'])) {
@@ -793,7 +795,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addContact($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"contact" must be array of objects or null, '.gettype($data['contact']).' seen.');
+                    throw new \InvalidArgumentException('"contact" must be array of objects or null, ' . gettype($data['contact']) . ' seen.');
                 }
             }
             if (isset($data['url'])) {
@@ -808,7 +810,7 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addNote($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"note" must be array of objects or null, '.gettype($data['note']).' seen.');
+                    throw new \InvalidArgumentException('"note" must be array of objects or null, ' . gettype($data['note']) . ' seen.');
                 }
             }
             if (isset($data['quantity'])) {
@@ -823,11 +825,11 @@ class FHIRDeviceDefinition extends FHIRDomainResource implements \JsonSerializab
                         $this->addMaterial($d);
                     }
                 } else {
-                    throw new \InvalidArgumentException('"material" must be array of objects or null, '.gettype($data['material']).' seen.');
+                    throw new \InvalidArgumentException('"material" must be array of objects or null, ' . gettype($data['material']) . ' seen.');
                 }
             }
-        } else if (null !== $data) {
-            throw new \InvalidArgumentException('$data expected to be array of values, saw "'.gettype($data).'"');
+        } elseif (null !== $data) {
+            throw new \InvalidArgumentException('$data expected to be array of values, saw "' . gettype($data) . '"');
         }
         parent::__construct($data);
     }

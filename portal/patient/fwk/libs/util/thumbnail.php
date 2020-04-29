@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Enter description here ...
@@ -109,7 +110,7 @@ class thumbnail
         
         // if the source fits within the maximum then no need to resize
         if ($useExactSize == false && $size [0] <= $maxWidth && $size [1] <= $maxHeight) {
-            $function ( $source, $targetFormatOrFilename );
+            $function($source, $targetFormatOrFilename);
         } else {
             $newWidth = 0;
             $newHeight = 0;
@@ -133,7 +134,7 @@ class thumbnail
             
             $target = imagecreatetruecolor($newWidth, $newHeight);
             imagecopyresampled($target, $source, 0, 0, 0, 0, $newWidth, $newHeight, $size [0], $size [1]);
-            $function ( $target, $targetFormatOrFilename );
+            $function($target, $targetFormatOrFilename);
         }
         
         return true;

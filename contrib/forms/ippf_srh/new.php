@@ -1,4 +1,5 @@
 <?php
+
 // Copyright (C) 2009 Rod Roark <rod@sunsetsystems.com>
 //
 // This program is free software; you can redistribute it and/or
@@ -11,6 +12,8 @@ require_once("$srcdir/api.inc");
 require_once("$srcdir/forms.inc");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc");
+
+use OpenEMR\Core\Header;
 
 $CPR = 4; // cells per row
 
@@ -34,8 +37,7 @@ function end_row()
     global $cell_count, $CPR;
     end_cell();
     if ($cell_count > 0) {
-        for (; $cell_count < $CPR;
-        ++$cell_count) {
+        for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
         }
 
@@ -60,7 +62,7 @@ $formid = $_GET['id'];
 //
 if ($_POST['bn_save']) {
     $sets = "";
-    $sqlBindArray= array();
+    $sqlBindArray = array();
     $fres = sqlStatement("SELECT * FROM layout_options " .
     "WHERE form_id = 'SRH' AND uor > 0 AND field_id != '' AND " .
     "edit_options != 'H' " .
@@ -107,7 +109,7 @@ if ($formid) {
 ?>
 <html>
 <head>
-<link rel=stylesheet href="<?php echo $css_header;?>" type="text/css">
+    <?php Header::setupHeader(); ?>
 <style>
 
 td, input, select, textarea {
@@ -124,8 +126,6 @@ div.section {
 }
 
 </style>
-
-<script type="text/javascript" src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
 
 <script language="JavaScript">
 
@@ -196,7 +196,7 @@ while ($frow = sqlFetchArray($fres)) {
             $group_name = substr($this_group, 1);
             $last_group = $this_group;
             echo "<br /><span class='bold'><input type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " .
-        "onclick='return divclick(this," . attr_js("div_".$group_seq) . ");'";
+        "onclick='return divclick(this," . attr_js("div_" . $group_seq) . ");'";
         if ($display_style == 'block') {
             echo " checked";
         }

@@ -15,28 +15,28 @@ class Tree
 {
 
     /*
-	*	This is the name of the table this tree is stored in
-	*	@var string
-	*/
+    *   This is the name of the table this tree is stored in
+    *   @var string
+    */
     var $_table;
 
     /*
-	*	This is a lookup table so that you can get a node name or parent id from its id
-	*	@var array
-	*/
+    *   This is a lookup table so that you can get a node name or parent id from its id
+    *   @var array
+    */
     var $_id_name;
 
     /*
-	*	This is a db abstraction object compatible with ADODB
-	*	@var object the constructor expects it to be available as $GLOBALS['adodb']['db']
-	*/
+    *   This is a db abstraction object compatible with ADODB
+    *   @var object the constructor expects it to be available as $GLOBALS['adodb']['db']
+    */
     var $_db;
 
     /*
-	*	The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
-	*	@param mixed $root name or id of desired root node
-	*	@param int $root_type optional flag indicating if $root is a name or id, defaults to id
-	*/
+    *   The constructor takes a value and a flag determining if the value is the id of a the desired root node or the name
+    *   @param mixed $root name or id of desired root node
+    *   @param int $root_type optional flag indicating if $root is a name or id, defaults to id
+    */
     function __construct($root, $root_type = ROOT_TYPE_ID)
     {
         $this->_db = $GLOBALS['adodb']['db'];
@@ -92,9 +92,9 @@ class Tree
             }
 
             // only check stack if there is one
-            if (count($right)>0) {
+            if (count($right) > 0) {
                 // check if we should remove a node from the stack
-                while ($right[count($right)-1]<$row['rght']) {
+                while ($right[count($right) - 1] < $row['rght']) {
                     array_pop($right);
                 }
             }
@@ -104,7 +104,7 @@ class Tree
             $loop = 0;
 
             //this is a string that gets evaled below to create the array representing the tree
-            $ar_string = "[\"".($row['id']) ."\"] = \$row[\"value\"]";
+            $ar_string = "[\"" . ($row['id']) . "\"] = \$row[\"value\"]";
 
             //if parent is 0 then the node has no parents, the number of nodes in the id_name lookup always includes any nodes
             //that could be the parent of any future node in the record set, the order is deterministic because of the algorithm
@@ -136,17 +136,17 @@ class Tree
     }
 
     /*
-	*	This function completely rebuilds a tree starting from parent to ensure that all of its preorder values
-	*	are integrous.
-	*	Upside is that it fixes any kind of goofiness, downside is that it is recursive and consequently
-	*	exponentially expensive with the size of the tree.
-	*	On adds and deletes the tree does dynamic updates as appropriate to maintain integrity of the algorithm,
-	*	however you can still force it to do goofy things and afterwards you will need this function to fix it.
-	*	If you need to do a huge number of adds or deletes it will be much faster to act directly on the db and then
-	*	call this to fix the mess than to use the add and delete functions.
-	*	@param int $parent id of the node you would like to rebuild all nodes below
-	*	@param int $left optional proper left value of the node you are rebuilding below, then used recursively
-	*/
+    *   This function completely rebuilds a tree starting from parent to ensure that all of its preorder values
+    *   are integrous.
+    *   Upside is that it fixes any kind of goofiness, downside is that it is recursive and consequently
+    *   exponentially expensive with the size of the tree.
+    *   On adds and deletes the tree does dynamic updates as appropriate to maintain integrity of the algorithm,
+    *   however you can still force it to do goofy things and afterwards you will need this function to fix it.
+    *   If you need to do a huge number of adds or deletes it will be much faster to act directly on the db and then
+    *   call this to fix the mess than to use the add and delete functions.
+    *   @param int $parent id of the node you would like to rebuild all nodes below
+    *   @param int $left optional proper left value of the node you are rebuilding below, then used recursively
+    */
     function rebuild_tree($parent, $left = null)
     {
 
@@ -169,7 +169,7 @@ class Tree
         $result = $this->_db->Execute($sql, [$parent]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         // the right value of this node is the left value + 1
-        $right = $left+1;
+        $right = $left + 1;
 
         while ($result && !$result->EOF) {
             $row = $result->fields;
@@ -184,22 +184,22 @@ class Tree
         // we've got the left value, and now that we've processed
         // the children of this node we also know the right value
         $sql = "UPDATE " . $this->_table . " SET lft=?, rght=? WHERE id=?;";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right, $parent]) or die("Error: " . text($sql) . " " . text($this->_db->ErrorMsg()));
 
         // return the right value of this node + 1
-        return $right+1;
+        return $right + 1;
     }
 
 
     /*
-	*	Call this to add a new node to the tree
-	*	@param int $parent id of the node you would like the new node to have as its parent
-	*	@param string $name the name of the new node, it will be used to reference its value in the tree array
-	*	@param string $value optional value this node is to contain
-	*	@param string $aco_spec optional ACO value in section|value format
-	*	@return int id of newly added node
-	*/
+    *   Call this to add a new node to the tree
+    *   @param int $parent id of the node you would like the new node to have as its parent
+    *   @param string $name the name of the new node, it will be used to reference its value in the tree array
+    *   @param string $value optional value this node is to contain
+    *   @param string $aco_spec optional ACO value in section|value format
+    *   @return int id of newly added node
+    */
     function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs")
     {
 
@@ -207,7 +207,7 @@ class Tree
         $result = $this->_db->Execute($sql, [$parent_id, $name]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         if ($result && !$result->EOF) {
-            die("You cannot add a node with the name '" . text($name) ."' because one already exists under parent " . text($parent_id) . "<br>");
+            die("You cannot add a node with the name '" . text($name) . "' because one already exists under parent " . text($parent_id) . "<br />");
         }
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
@@ -233,20 +233,20 @@ class Tree
     }
 
     /*
-	*	Call this to modify a node's attributes.
-	*	@param int $id id of the node to change
-	*	@param string $name the new name of the new node
-	*	@param string $value optional value this node is to contain
-	*	@param string $aco_spec optional ACO value in section|value format
-	*	@return int same as input id
-	*/
+    *   Call this to modify a node's attributes.
+    *   @param int $id id of the node to change
+    *   @param string $name the new name of the new node
+    *   @param string $value optional value this node is to contain
+    *   @param string $aco_spec optional ACO value in section|value format
+    *   @return int same as input id
+    */
     function edit_node($id, $name, $value = "", $aco_spec = "patients|docs")
     {
         $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
         "c1.id = ? AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = ?";
         $result = $this->_db->Execute($sql, [$id, $name]) or die(xlt('Error') . ": " . text($this->_db->ErrorMsg()));
         if ($result && !$result->EOF) {
-              die(xlt('This name already exists under this parent.') . "<br>");
+              die(xlt('This name already exists under this parent.') . "<br />");
         }
 
         $sql = "UPDATE " . $this->_table . " SET name = ?, value = ?, aco_spec = ? WHERE id = ?";
@@ -256,15 +256,15 @@ class Tree
     }
 
     /*
-	*	Call this to delete a node from the tree, the nodes children (and their children, etc) will become children
-	*	of the deleted nodes parent
-	*	@param int $id id of the node you want to delete
-	*/
+    *   Call this to delete a node from the tree, the nodes children (and their children, etc) will become children
+    *   of the deleted nodes parent
+    *   @param int $id id of the node you want to delete
+    */
     function delete_node($id)
     {
 
         $sql = "SELECT * from " . $this->_table . " where id = ?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $result = $this->_db->Execute($sql, [$id]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $left = 0;
@@ -278,26 +278,26 @@ class Tree
         }
 
         $sql = "UPDATE " . $this->_table . " SET rght=rght-2 WHERE rght>?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $sql = "UPDATE " . $this->_table . " SET lft=lft-2 WHERE lft>?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $sql = "UPDATE " . $this->_table . " SET lft=lft-1, rght=rght-1 WHERE lft>? and rght < ?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$left, $right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         //only update the childrens parent setting if the node has children
-        if ($right > ($left +1)) {
+        if ($right > ($left + 1)) {
             $sql = "UPDATE " . $this->_table . " SET parent=? WHERE parent=?";
-            //echo $sql . "<br>";
+            //echo $sql . "<br />";
             $this->_db->Execute($sql, [$new_parent, $id]) or die("Error: " . text($this->_db->ErrorMsg()));
         }
 
         $sql = "DELETE FROM " . $this->_table . " where id=?";
-        //echo $sql . "<br>";
+        //echo $sql . "<br />";
         $this->_db->Execute($sql, [$id]) or die("Error: " . text($this->_db->ErrorMsg()));
         $this->load_tree();
 

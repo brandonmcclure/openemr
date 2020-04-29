@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/super/rules/controllers/detail/view/view.php
  *
@@ -10,19 +11,20 @@
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 $rule = $viewBean->rule ?>
 
 <script language="javascript" src="<?php js_src('detail.js') ?>"></script>
 <script type="text/javascript">
-    var detail = new rule_detail( {editable: <?php echo $rule->isEditable() ? "true":"false"; ?>});
+    var detail = new rule_detail( {editable: <?php echo $rule->isEditable() ? "true" : "false"; ?>});
     detail.init();
 </script>
 
-<table class="header">
+<table class="table header">
   <tr >
         <td class="title"><?php echo xlt('Rule Detail'); ?></td>
         <td>
-            <a href="index.php?action=browse!list" class="iframe_medium css_button" onclick="top.restoreSession()"><span><?php echo xlt('Back'); ?></span></a>
+            <a href="index.php?action=browse!list" class="iframe_medium btn btn-primary" onclick="top.restoreSession()"><span><?php echo xlt('Back'); ?></span></a>
         </td>
   </tr>
 </table>
@@ -86,7 +88,6 @@ $rule = $viewBean->rule ?>
         <p class="header"><?php echo xlt('Demographics filter criteria'); ?> <a href="index.php?action=edit!add_criteria&id=<?php echo attr_url($rule->id); ?>&criteriaType=filter" class="action_link" onclick="top.restoreSession()">(<?php echo xlt('add'); ?>)</a></p>
         <p>
             <?php if ($filters->criteria) { ?>
-
                 <div>
                     <span class="left_col">&nbsp;</span>
                     <span class="mid_col"><u><?php echo xlt('Criteria'); ?></u></span>
@@ -142,7 +143,6 @@ $rule = $viewBean->rule ?>
             </p>
             <p>
                 <?php if ($targets->criteria) { ?>
-
                     <div>
                         <span class="left_col">&nbsp;</span>
                         <span class="mid_col"><u><?php echo xlt('Criteria'); ?></u></span>

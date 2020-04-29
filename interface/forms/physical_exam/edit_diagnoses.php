@@ -1,4 +1,5 @@
 <?php
+
 /**
  * physical_exam edit_diagnoses.php
  *
@@ -11,25 +12,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+require_once(__DIR__ . "/../../globals.php");
 
-require_once("../../globals.php");
-require_once("$srcdir/acl.inc");
-
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
-if ($issue && !acl_check('patients', 'med', '', 'write')) {
+if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     die("Edit is not authorized!");
 }
 ?>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo xlt('Edit Diagnoses for');?><?php echo text($line_id); ?></title>
-<link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
 
+<?php Header::setupHeader('opener'); ?>
 
 </head>
 
@@ -78,7 +78,7 @@ if ($_POST['form_save']) {
      "line_id = ? ORDER BY ordering, diagnosis",
      array($line_id)
  );
-?>
+    ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

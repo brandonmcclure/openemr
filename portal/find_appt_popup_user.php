@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * Modified from main codebase for the patient portal.
@@ -8,9 +9,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ian Jardine ( github.com/epsdky )
  * @copyright Copyright (C) 2005-2013 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (C) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (C) 2019 Ian Jardine ( github.com/epsdky )
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,8 +22,13 @@
 // interface/main/calendar/find_appt_popup.php.  It contains an old version
 // of that logic and does not support exception dates for repeating events.
 
+// Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
+// This issue no longer exists - epsdky 2019
+
 //continue session
-session_start();
+// Will start the (patient) portal OpenEMR session/cookie.
+require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
+OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 //
 
 //landing page definition -- where to go if something goes wrong
@@ -31,8 +39,8 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
 if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
-    session_destroy();
-    header('Location: '.$landingpage.'&w');
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    header('Location: ' . $landingpage . '&w');
     exit();
 }
 
@@ -42,6 +50,9 @@ $ignoreAuth = 1;
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc");
+require_once(dirname(__FILE__) . "/../library/appointments.inc.php");
+
+use OpenEMR\Core\Header;
 
 $input_catid = $_REQUEST['catid'];
 
@@ -80,7 +91,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid)
             }
 
             break; // ignore any positive duration for IN
-        } else if ($catid == 3) { // out of office
+        } elseif ($catid == 3) { // out of office
             $slots[$i] |= 2;
             break; // ignore any positive duration for OUT
         } else { // all other events reserve time
@@ -108,11 +119,13 @@ if ($_REQUEST['searchdays']) {
 }
 
  // Get a start date.
-if ($_REQUEST['startdate'] && preg_match(
-    "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
-    $_REQUEST['startdate'],
-    $matches
-)) {
+if (
+    $_REQUEST['startdate'] && preg_match(
+        "/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/",
+        $_REQUEST['startdate'],
+        $matches
+    )
+) {
     $sdate = $matches[1] . '-' . $matches[2] . '-' . $matches[3];
 } else {
     $sdate = date("Y-m-d");
@@ -150,138 +163,30 @@ if ($_REQUEST['startdate'] && preg_match(
     //
         $slots = array_pad(array(), $slotcount, 0);
 
-    // Note there is no need to sort the query results.
-    //  echo $sdate." -- ".$edate;
+        // Note there is no need to sort the query results.
+        //  echo $sdate." -- ".$edate;
         $query = "SELECT pc_eventDate, pc_endDate, pc_startTime, pc_duration, " .
             "pc_recurrtype, pc_recurrspec, pc_alldayevent, pc_catid, pc_prefcatid, pc_title " .
             "FROM openemr_postcalendar_events " .
             "WHERE pc_aid = ? AND " .
             "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
             "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
-        $res = sqlStatement($query, array($providerid, $sdate, $edate, $sdate, $edate));
-   //  print_r($res);
 
-        while ($row = sqlFetchArray($res)) {
+        $sqlBindArray = array();
+        array_push($sqlBindArray, $providerid, $sdate, $edate, $sdate, $edate);
+        //////
+        $events2 = fetchEvents($sdate, $edate, null, null, false, 0, $sqlBindArray, $query);
+        foreach ($events2 as $row) {
             $thistime = strtotime($row['pc_eventDate'] . " 00:00:00");
-            if ($row['pc_recurrtype']) {
-                preg_match('/"event_repeat_freq_type";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $repeattype = $matches[1];
-
-                preg_match('/"event_repeat_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $repeatfreq = $matches[1];
-                if ($row['pc_recurrtype'] == 2) {
-                    // Repeat type is 2 so frequency comes from event_repeat_on_freq.
-                    preg_match('/"event_repeat_on_freq";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                    $repeatfreq = $matches[1];
-                }
-
-                if (! $repeatfreq) {
-                    $repeatfreq = 1;
-                }
-
-                preg_match('/"event_repeat_on_num";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $my_repeat_on_num = $matches[1];
-
-                preg_match('/"event_repeat_on_day";s:1:"(\d)"/', $row['pc_recurrspec'], $matches);
-                $my_repeat_on_day = $matches[1];
-
-                $endtime = strtotime($row['pc_endDate'] . " 00:00:00") + (24 * 60 * 60);
-                if ($endtime > $slotetime) {
-                    $endtime = $slotetime;
-                }
-
-                $repeatix = 0;
-                while ($thistime < $endtime) {
-                    // Skip the event if a repeat frequency > 1 was specified and this is
-                    // not the desired occurrence.
-                    if (! $repeatix) {
-                        doOneDay(
-                            $row['pc_catid'],
-                            $thistime,
-                            $row['pc_startTime'],
-                            $row['pc_duration'],
-                            $row['pc_prefcatid']
-                        );
-                    }
-
-                    if (++$repeatix >= $repeatfreq) {
-                        $repeatix = 0;
-                    }
-
-                    $adate = getdate($thistime);
-
-                    if ($row['pc_recurrtype'] == 2) {
-                        // Need to skip to nth or last weekday of the next month.
-                        $adate['mon'] += 1;
-                        if ($adate['mon'] > 12) {
-                            $adate['year'] += 1;
-                            $adate['mon'] -= 12;
-                        }
-
-                        if ($my_repeat_on_num < 5) { // not last
-                            $adate['mday'] = 1;
-                            $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                            if ($dow > $my_repeat_on_day) {
-                                $dow -= 7;
-                            }
-
-                            $adate['mday'] += ($my_repeat_on_num - 1) * 7 + $my_repeat_on_day - $dow;
-                        } else { // last weekday of month
-                            $adate['mday'] = cal_days_in_month(CAL_GREGORIAN, $adate['mon'], $adate['year']);
-                            $dow = jddayofweek(cal_to_jd(CAL_GREGORIAN, $adate['mon'], $adate['mday'], $adate['year']));
-                            if ($dow < $my_repeat_on_day) {
-                                $dow += 7;
-                            }
-
-                            $adate['mday'] += $my_repeat_on_day - $dow;
-                        }
-                    } // end recurrtype 2
-
-                    else { // recurrtype 1
-
-                        if ($repeattype == 0) { // daily
-                            $adate['mday'] += 1;
-                        } else if ($repeattype == 1) { // weekly
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 2) { // monthly
-                            $adate['mon'] += 1;
-                        } else if ($repeattype == 3) { // yearly
-                            $adate['year'] += 1;
-                        } else if ($repeattype == 4) { // work days
-                            if ($adate['wday'] == 5) {      // if friday, skip to monday
-                                $adate['mday'] += 3;
-                            } else if ($adate['wday'] == 6) { // saturday should not happen
-                                $adate['mday'] += 2;
-                            } else {
-                                $adate['mday'] += 1;
-                            }
-                        } else if ($repeattype == 5) { // monday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 6) { // tuesday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 7) { // wednesday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 8) { // thursday
-                            $adate['mday'] += 7;
-                        } else if ($repeattype == 9) { // friday
-                            $adate['mday'] += 7;
-                        } else {
-                             die("Invalid repeat type '$repeattype'");
-                        }
-                    } // end recurrtype 1
-
-                    $thistime = mktime(0, 0, 0, $adate['mon'], $adate['mday'], $adate['year']);
-                }
-            } else {
-                doOneDay(
-                    $row['pc_catid'],
-                    $thistime,
-                    $row['pc_startTime'],
-                    $row['pc_duration'],
-                    $row['pc_prefcatid']
-                );
-            }
+            doOneDay(
+                $row['pc_catid'],
+                $thistime,
+                $row['pc_startTime'],
+                $row['pc_duration'],
+                $row['pc_prefcatid']
+            );
         }
+        //////
 
      // Mark all slots reserved where the provider is not in-office.
      // Actually we could do this in the display loop instead.
@@ -304,22 +209,12 @@ if ($_REQUEST['startdate'] && preg_match(
             }
         }
     }
-?>
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js"></script>
 <title><?php echo xlt('Find Available Appointments'); ?></title>
-<link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-<?php if ($_SESSION['language_direction'] == 'rtl') { ?>
-    <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap-rtl/dist/css/bootstrap-rtl.min.css" rel="stylesheet" type="text/css" />
-<?php } ?>
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css">
-<!-- for the pop up calendar -->
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery/dist/jquery.min.js" type="text/javascript"></script>
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-
+<?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'opener']); ?>
 <script>
 
 function setappt(year,mon,mday,hours,minutes) {
@@ -399,18 +294,15 @@ function setappt(year,mon,mday,hours,minutes) {
 
     <?php echo xlt('Start date:'); ?>
 
-   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>'
-    title='yyyy-mm-dd starting date for search'/>
+   <input type='text' class='datepicker' name='startdate' id='startdate' size='10' value='<?php echo attr($sdate); ?>' title='yyyy-mm-dd starting date for search' />
 
     <?php echo xlt('for'); ?>
-   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>'
-    title='Number of days to search from the start date' />
+   <input type='text' name='searchdays' size='3' value='<?php echo attr($searchdays); ?>' title='Number of days to search from the start date' />
     <?php echo xlt('days'); ?>&nbsp;
-   <input type='submit' value='<?php echo xla('Search'); ?>'>
+   <input type='submit' value='<?php echo xla('Search'); ?>' />
 </div>
 
 <?php if (!empty($slots)) : ?>
-
 <div id="searchResultsHeader">
 <table class='table table-bordered'>
 
@@ -425,83 +317,82 @@ function setappt(year,mon,mday,hours,minutes) {
         <th class="srTimes"><?php echo xlt('Available Times'); ?></th>
     </tr>
     </thead>
-<?php
+    <?php
     $lastdate = "";
     $ampmFlag = "am"; // establish an AM-PM line break flag
-for ($i = 0; $i < $slotcount; ++$i) {
-    $available = true;
-    for ($j = $i; $j < $i + $catslots; ++$j) {
-        if ($slots[$j] >= 4) {
-            $available = false;
-        }
-    }
-
-    if (!$available) {
-        continue; // skip reserved slots
-    }
-
-    $utime = ($slotbase + $i) * $slotsecs;
-    $thisdate = date("Y-m-d", $utime);
-    if ($thisdate != $lastdate) {
-        // if a new day, start a new row
-        if ($lastdate) {
-            echo "</div>";
-            echo "</td>\n";
-            echo " </tr>\n";
+    for ($i = 0; $i < $slotcount; ++$i) {
+        $available = true;
+        for ($j = $i; $j < $i + $catslots; ++$j) {
+            if ($slots[$j] >= 4) {
+                $available = false;
+            }
         }
 
-        $lastdate = $thisdate;
-        echo " <tr class='oneresult'>\n";
-        echo "  <td class='srDate'>" . date("l", $utime)."<br>".date("Y-m-d", $utime) . "</td>\n";
-        echo "  <td class='srTimes'>";
-        echo "<div id='am'>AM ";
-        $ampmFlag = "am";  // reset the AMPM flag
+        if (!$available) {
+            continue; // skip reserved slots
+        }
+
+        $utime = ($slotbase + $i) * $slotsecs;
+        $thisdate = date("Y-m-d", $utime);
+        if ($thisdate != $lastdate) {
+            // if a new day, start a new row
+            if ($lastdate) {
+                echo "</div>";
+                echo "</td>\n";
+                echo " </tr>\n";
+            }
+
+            $lastdate = $thisdate;
+            echo " <tr class='oneresult'>\n";
+            echo "  <td class='srDate'>" . date("l", $utime) . "<br />" . date("Y-m-d", $utime) . "</td>\n";
+            echo "  <td class='srTimes'>";
+            echo "<div id='am'>AM ";
+            $ampmFlag = "am";  // reset the AMPM flag
+        }
+
+        $ampm = date('a', $utime);
+        if ($ampmFlag != $ampm) {
+            echo "</div><div id='pm'>PM ";
+        }
+
+        $ampmFlag = $ampm;
+
+        $atitle = "Choose " . date("h:i a", $utime);
+        $adate = getdate($utime);
+        $anchor = "<a href='' onclick='return setappt(" .
+        attr_js($adate['year']) . "," .
+        attr_js($adate['mon']) . "," .
+        attr_js($adate['mday']) . "," .
+        attr_js($adate['hours']) . "," .
+        attr_js($adate['minutes']) . ")'" .
+        " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
+        ">";
+        echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
+        $anchor . date("g:i", $utime) . "</a> ";
+
+        // If category duration is more than 1 slot, increment $i appropriately.
+        // This is to avoid reporting available times on undesirable boundaries.
+        $i += $catslots - 1;
     }
 
-    $ampm = date('a', $utime);
-    if ($ampmFlag != $ampm) {
-        echo "</div><div id='pm'>PM ";
+    if ($lastdate) {
+        echo "</td>\n";
+        echo " </tr>\n";
+    } else {
+        echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
     }
-
-    $ampmFlag = $ampm;
-
-    $atitle = "Choose ".date("h:i a", $utime);
-    $adate = getdate($utime);
-    $anchor = "<a href='' onclick='return setappt(" .
-    attr_js($adate['year']) . "," .
-    attr_js($adate['mon']) . "," .
-    attr_js($adate['mday']) . "," .
-    attr_js($adate['hours']) . "," .
-    attr_js($adate['minutes']) . ")'".
-    " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'".
-    ">";
-    echo (strlen(date('g', $utime)) < 2 ? "<span style='visibility:hidden'>0</span>" : "") .
-    $anchor . date("g:i", $utime) . "</a> ";
-
-    // If category duration is more than 1 slot, increment $i appropriately.
-    // This is to avoid reporting available times on undesirable boundaries.
-    $i += $catslots - 1;
-}
-
-if ($lastdate) {
-    echo "</td>\n";
-    echo " </tr>\n";
-} else {
-    echo " <tr><td colspan='2'> " . xlt('No openings were found for this period.') . "</td></tr>\n";
-}
-?>
+    ?>
 </table>
 </div>
 </div>
 <?php endif; ?>
 
 </form>
-</body>
 
-<script language='JavaScript'>
+<script type='text/javascript'>
 
 // jQuery stuff to make the page a little easier to use
-$(function(){
+$(function () {
     $(".oneresult").mouseover(function() { $(this).toggleClass("highlight"); });
     $(".oneresult").mouseout(function() { $(this).toggleClass("highlight"); });
     $(".oneresult a").mouseover(function () { $(this).toggleClass("blue_highlight"); $(this).children().toggleClass("blue_highlight"); });
@@ -517,5 +408,5 @@ $(function(){
 });
 
 </script>
-
+</body>
 </html>

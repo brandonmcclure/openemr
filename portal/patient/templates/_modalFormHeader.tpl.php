@@ -1,4 +1,5 @@
 <?php
+
 /**
  * _modalFormHeader.tpl.php
  *
@@ -8,6 +9,7 @@
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -15,7 +17,7 @@
 <meta charset="utf-8">
 
 <title><?php $this->eprint($this->title); ?></title>
-<meta content="width=device-width, initial-scale=1, user-scalable=no"	name="viewport">
+<meta content="width=device-width, initial-scale=1, user-scalable=no"   name="viewport">
 
 
 <meta name="description" content="Patient Profile" />
@@ -26,7 +28,7 @@
 <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-datetimepicker/build/jquery.datetimepicker.min.css"  rel="stylesheet" />
 <?php if ($this->register) {?>
     <link href="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
 <?php } ?>
 
 <link href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/styles/style.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet" />

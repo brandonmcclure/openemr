@@ -1,4 +1,5 @@
 <?php
+
 /**
  * interface/therapy_groups/therapy_groups_views/addGroup.php contains view for adding group.
  *
@@ -23,10 +24,13 @@
  * @author  Amiel Elboim <amielel@matrix.co.il>
  * @link    http://www.open-emr.org
  */
+
+use OpenEMR\Common\Acl\AclMain;
+
 ?>
 
-<?php $edit = acl_check("groups", "gadd", false, 'write');?>
-<?php $view = acl_check("groups", "gadd", false, 'view');?>
+<?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
+<?php $view = AclMain::aclCheckCore("groups", "gadd", false, 'view');?>
 
 <?php require 'header.php'; ?>
 <?php if ($view || $edit) :?>
@@ -147,13 +151,13 @@
                 </div>
                 <div class="col-md-9 col-sm 12">
                     <?php if ($edit) :?>
-                    <?php if ($savingStatus == 'exist') : ?>
+                        <?php if ($savingStatus == 'exist') : ?>
                         <div id="exist-group"><h4 class="group-error-msg"><?php echo text($message) ?></h4><button id="cancel-save"><?php echo xlt('cancel') ?></button><button type="submit" value="save_anyway" name="save"><?php echo xlt('Creating anyway') ?></button></div>
                     <?php endif ?>
-                    <?php if ($savingStatus == 'success') : ?>
+                        <?php if ($savingStatus == 'success') : ?>
                         <h4 class="group-success-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
-                    <?php if ($savingStatus == 'failed') : ?>
+                        <?php if ($savingStatus == 'failed') : ?>
                         <h4 class="group-serror-msg"><?php echo text($message) ?></h4>
                     <?php endif ?>
                     <?php endif;?>
@@ -164,7 +168,7 @@
     </div>
 </main>
 <script>
-    $(function(){
+    $(function () {
 
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
@@ -179,10 +183,9 @@
         $('#exist-group').hide();
     });
 </script>
-<?php    $use_validate_js = 1;?>
-<?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=addGroup');?>
+    <?php    $use_validate_js = 1;?>
+    <?php validateUsingPageRules($_SERVER['PHP_SELF'] . '?method=addGroup');?>
 <?php else :?>
-
     <div class="container">
 
     <div class="row alert alert-info">
